@@ -1,0 +1,4981 @@
+/* styles/index.css */
+/* hosanna-ui/styles.css — the full stylesheet.
+ *
+ * Import order is load-bearing only for the @layer declaration; everything else
+ * is ordered by cascade layer, not by position in this file. */
+/* styles/layers.css */
+/* Cascade order for everything the library ships.
+ *
+ * Declaring the order once, up front, is what lets a consuming app override any
+ * component style with a plain single-class selector — no !important, no
+ * specificity escalation. Anything the app writes outside these layers wins
+ * automatically, because unlayered styles beat layered ones.
+ */
+@layer hosanna.reset, hosanna.tokens, hosanna.base, hosanna.components, hosanna.utilities;
+
+
+/* styles/reset.css */
+@layer hosanna.reset {
+  /* A deliberately small reset. It normalises the things that actively fight a
+   * design system (inherited box model, form control typography, default
+   * margins) and nothing else — it is not trying to be normalize.css. */
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    tab-size: 4;
+  }
+
+  body {
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Media defaults to block so images stop sitting on a text baseline. */
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Form controls do not inherit typography by default — the single most
+   * common source of "why is my input a different font". */
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+  }
+
+  button {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  /* Long unbroken strings (URLs, IDs, hashes) must not blow out a layout. */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  ol[class],
+  ul[class] {
+    list-style: none;
+    padding: 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* The library draws its own focus ring on every interactive element. Removing
+   * the UA outline here is only safe BECAUSE of that — see base.css. */
+  :focus-visible {
+    outline: none;
+  }
+}
+
+
+/* styles/tokens.css */
+@layer hosanna.tokens {
+  /* ===========================================================================
+   * REFERENCE TOKENS — raw values. Components never read these directly; they
+   * only ever read the SYSTEM tokens (_theme-dark.css / _theme-light.css), so
+   * retargeting a theme means remapping ~45 semantic names, not auditing every
+   * component rule.
+   * ========================================================================= */
+  :root {
+    /* Graphite ramp. One hue (265 — cool blue-grey) at low chroma, so surfaces
+     * read neutral without going dead grey on a warm display profile. */
+    --hos-graphite-0: oklch(13% 0.006 265);
+    --hos-graphite-50: oklch(17% 0.008 265);
+    --hos-graphite-100: oklch(21% 0.009 265);
+    --hos-graphite-150: oklch(25% 0.01 265);
+    --hos-graphite-200: oklch(28% 0.011 265);
+    --hos-graphite-300: oklch(31% 0.012 265);
+    --hos-graphite-400: oklch(38% 0.013 265);
+    --hos-graphite-500: oklch(52% 0.014 265);
+    --hos-graphite-600: oklch(68% 0.012 265);
+    --hos-graphite-700: oklch(80% 0.008 265);
+    --hos-graphite-800: oklch(88% 0.005 265);
+    --hos-graphite-900: oklch(96% 0.003 265);
+    --hos-graphite-1000: oklch(99.5% 0 0);
+
+    /* Cyan signal. Bright end serves dark surfaces, dark end serves light. */
+    --hos-cyan-300: oklch(85% 0.09 195);
+    --hos-cyan-400: oklch(77% 0.14 195);
+    --hos-cyan-500: oklch(72% 0.15 195);
+    --hos-cyan-600: oklch(67% 0.15 195);
+    --hos-cyan-700: oklch(58% 0.13 200);
+    --hos-cyan-800: oklch(52% 0.11 205);
+    --hos-cyan-900: oklch(45% 0.1 208);
+
+    /* Status hues. Lightness is selected per theme, not fixed here. */
+    --hos-red-400: oklch(72% 0.18 25);
+    --hos-red-500: oklch(65% 0.2 25);
+    --hos-red-600: oklch(58% 0.21 25);
+    --hos-red-700: oklch(51% 0.2 25);
+    --hos-green-400: oklch(78% 0.14 150);
+    --hos-green-500: oklch(70% 0.16 150);
+    --hos-green-600: oklch(62% 0.15 150);
+    --hos-green-700: oklch(52% 0.13 152);
+    --hos-amber-400: oklch(84% 0.14 85);
+    --hos-amber-500: oklch(78% 0.15 85);
+    --hos-amber-600: oklch(70% 0.15 78);
+    --hos-amber-700: oklch(58% 0.13 70);
+    --hos-blue-400: oklch(76% 0.11 250);
+    --hos-blue-500: oklch(70% 0.13 250);
+    --hos-blue-600: oklch(60% 0.15 253);
+    --hos-blue-700: oklch(52% 0.16 255);
+
+    /* =========================================================================
+     * DIMENSION — theme-independent.
+     * ======================================================================= */
+
+    /* 4px grid. Half-steps exist only where control geometry needs them. */
+    --hos-space-0: 0px;
+    --hos-space-px: 1px;
+    --hos-space-0-5: 2px;
+    --hos-space-1: 4px;
+    --hos-space-1-5: 6px;
+    --hos-space-2: 8px;
+    --hos-space-2-5: 10px;
+    --hos-space-3: 12px;
+    --hos-space-3-5: 14px;
+    --hos-space-4: 16px;
+    --hos-space-5: 20px;
+    --hos-space-6: 24px;
+    --hos-space-7: 28px;
+    --hos-space-8: 32px;
+    --hos-space-10: 40px;
+    --hos-space-12: 48px;
+    --hos-space-16: 64px;
+    --hos-space-20: 80px;
+    --hos-space-24: 96px;
+
+    /* Restrained by policy: 4-8px covers every product surface. --radius-xl is
+     * reserved for viewport-edge surfaces (drawers) where the larger corner is
+     * structural rather than decorative. */
+    --hos-radius-none: 0px;
+    --hos-radius-xs: 2px;
+    --hos-radius-sm: 3px;
+    --hos-radius-md: 4px;
+    --hos-radius-lg: 6px;
+    --hos-radius-xl: 12px;
+    --hos-radius-full: 9999px;
+
+    --hos-border-width: 1px;
+    --hos-border-width-strong: 2px;
+
+    /* System stack: no font files, no FOUT, no layout shift, native on every
+     * OS. Override --hos-font-sans in your app to swap in a webfont. */
+    --hos-font-sans:
+      "Hanken Grotesk Variable", "Hanken Grotesk", ui-sans-serif, system-ui,
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji";
+    --hos-font-mono:
+      "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular,
+      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    /* UI type scale — 14px base, sized for dense product surfaces rather than
+     * marketing pages. Each step ships with its intended line-height. */
+    --hos-text-2xs: 11px;
+    --hos-text-2xs-lh: 16px;
+    --hos-text-xs: 12px;
+    --hos-text-xs-lh: 16px;
+    --hos-text-sm: 13px;
+    --hos-text-sm-lh: 20px;
+    --hos-text-base: 14px;
+    --hos-text-base-lh: 20px;
+    --hos-text-md: 15px;
+    --hos-text-md-lh: 24px;
+    --hos-text-lg: 17px;
+    --hos-text-lg-lh: 24px;
+    --hos-text-xl: 20px;
+    --hos-text-xl-lh: 28px;
+    --hos-text-2xl: 24px;
+    --hos-text-2xl-lh: 32px;
+    --hos-text-3xl: 30px;
+    --hos-text-3xl-lh: 36px;
+
+    /* Display scale — marketing surfaces only.
+     *
+     * The scale above is drawn for product UI and deliberately stops at
+     * 30px, which is right inside an app and far too small for a page
+     * whose job is to convince someone in one screen. These four steps
+     * are the marketing layer, and they are fluid because a hero has to
+     * hold together from a phone to a 27-inch display without a media
+     * query per breakpoint.
+     *
+     * Leading tightens as size grows — display type set at body leading
+     * looks unset — and tracking goes negative for the same reason: the
+     * letterspace that reads as even at 16px reads as loose at 64px. */
+    /* The lower bound of each step is the *phone* size and is chosen first:
+     * a scale that starts at its desktop value and shrinks reluctantly gives
+     * you a hero that needs six lines on a 390px screen. Leading loosens at
+     * the small end too, because tight display leading that reads as crisp at
+     * 80px reads as cramped at 36. */
+    --hos-display-sm: clamp(1.5rem, 1.28rem + 1.1vw, 2.25rem);
+    --hos-display-sm-lh: 1.2;
+    --hos-display-md: clamp(1.75rem, 1.35rem + 2vw, 3rem);
+    --hos-display-md-lh: 1.14;
+    --hos-display-lg: clamp(2rem, 1.4rem + 3vw, 4rem);
+    --hos-display-lg-lh: 1.1;
+    --hos-display-xl: clamp(2.25rem, 1.45rem + 4vw, 5rem);
+    --hos-display-xl-lh: 1.06;
+
+    --hos-display-tracking: -0.028em;
+    --hos-display-tracking-tight: -0.036em;
+
+    --hos-weight-normal: 400;
+    --hos-weight-medium: 500;
+    --hos-weight-semibold: 600;
+
+    --hos-tracking-tight: -0.01em;
+    --hos-tracking-normal: 0em;
+    --hos-tracking-wide: 0.02em;
+
+    /* Motion. 100-180ms is the working range; slower than that and the UI
+     * starts getting in the way of the task. Reduced-motion collapses these in
+     * base.css. */
+    --hos-dur-instant: 80ms;
+    --hos-dur-fast: 120ms;
+    --hos-dur-base: 200ms;
+    --hos-dur-slow: 240ms;
+    --hos-ease-out: cubic-bezier(0.2, 0, 0, 1);
+    --hos-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --hos-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+    /* Stacking. Gaps leave room for app-owned layers in between. */
+    --hos-z-base: 0;
+    --hos-z-raised: 10;
+    --hos-z-sticky: 1100;
+    --hos-z-backdrop: 1200;
+    --hos-z-dialog: 1300;
+    --hos-z-popover: 1400;
+    --hos-z-toast: 1500;
+    --hos-z-tooltip: 1600;
+
+    /* Focus ring — one definition, honoured by every interactive element. */
+    --hos-ring-width: 2px;
+    --hos-ring-offset: 2px;
+
+    /* helm draws buttons 2px shorter than inputs, and icon buttons 4px
+     * shorter again. Derived so density still scales all three together. */
+    --hos-button-h-sm: calc(var(--hos-control-h-sm) - 2px);
+    --hos-button-h-md: calc(var(--hos-control-h-md) - 2px);
+    --hos-button-h-lg: calc(var(--hos-control-h-lg) - 2px);
+    --hos-icon-button-sm: calc(var(--hos-control-h-sm) - 4px);
+    --hos-icon-button-md: calc(var(--hos-control-h-md) - 4px);
+    --hos-icon-button-lg: calc(var(--hos-control-h-lg) - 4px);
+
+    --hos-container-sm: 640px;
+    --hos-container-md: 768px;
+    --hos-container-lg: 1024px;
+    --hos-container-xl: 1280px;
+    --hos-container-2xl: 1440px;
+  }
+
+  /* ===========================================================================
+   * SYSTEM TOKENS
+   * Dark is the default — it is what the components were drawn against.
+   * Both theme bodies live in single partials that the CSS build splices in, so
+   * the OS-preference fallback below can never drift from the explicit theme.
+   * ========================================================================= */
+  :root {
+    /* styles/_theme-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+    color-scheme: dark;
+
+    --hos-bg: #1a1814;
+    --hos-bg-sunken: #131210;
+    --hos-surface: #221f1a;
+    --hos-surface-raised: #221f1a;
+    --hos-surface-overlay: #221f1a;
+    --hos-surface-hover: rgb(241 239 231 / 0.05);
+    --hos-surface-active: rgb(241 239 231 / 0.08);
+    --hos-surface-selected: #122a3a;
+
+    --hos-fg: #f1efe7;
+    --hos-fg-muted: #b0ada2;
+    --hos-fg-subtle: #7c7a6f;
+    --hos-fg-on-accent: #06283d;
+    --hos-fg-inverted: #1a1814;
+
+    --hos-border: #2c2a23;
+    --hos-border-subtle: #232119;
+    --hos-border-strong: #3b382f;
+    --hos-border-accent: rgb(56 189 248 / 0.45);
+
+    --hos-accent: #38bdf8;
+    --hos-accent-hover: #7dd3fc;
+    --hos-accent-active: #0ea5e9;
+    --hos-accent-subtle: #122a3a;
+    --hos-accent-fg: #7dd3fc;
+
+    --hos-danger: #e07a5f;
+    --hos-danger-hover: #eb9880;
+    --hos-danger-active: #c96548;
+    --hos-danger-subtle: #2a1b16;
+    --hos-danger-fg: #e07a5f;
+    --hos-danger-on: #2a1611;
+
+    --hos-success: #7fb069;
+    --hos-success-subtle: #1c2418;
+    --hos-success-fg: #93c47d;
+    --hos-success-on: #16210f;
+
+    --hos-warning: #d9a441;
+    --hos-warning-subtle: #2a2216;
+    --hos-warning-fg: #e5b95f;
+    --hos-warning-on: #241c0d;
+
+    --hos-info: #38bdf8;
+    --hos-info-subtle: #122a3a;
+    --hos-info-fg: #7dd3fc;
+    --hos-info-on: #06283d;
+
+    --hos-ring: #38bdf8;
+    --hos-ring-offset-color: #1a1814;
+    --hos-backdrop: rgb(0 0 0 / 0.55);
+    --hos-skeleton: rgb(241 239 231 / 0.06);
+    --hos-skeleton-shine: rgb(241 239 231 / 0.1);
+
+    --hos-shadow-sm: 0 1px 1px rgb(0 0 0 / 0.3);
+    --hos-shadow-md: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.45);
+    --hos-shadow-lg: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 34px rgb(0 0 0 / 0.55);
+    --hos-shadow-inset-top: inset 0 1px 0 rgb(241 239 231 / 0.05);
+
+
+  }
+
+  [data-theme="dark"] {
+    /* styles/_theme-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+    color-scheme: dark;
+
+    --hos-bg: #1a1814;
+    --hos-bg-sunken: #131210;
+    --hos-surface: #221f1a;
+    --hos-surface-raised: #221f1a;
+    --hos-surface-overlay: #221f1a;
+    --hos-surface-hover: rgb(241 239 231 / 0.05);
+    --hos-surface-active: rgb(241 239 231 / 0.08);
+    --hos-surface-selected: #122a3a;
+
+    --hos-fg: #f1efe7;
+    --hos-fg-muted: #b0ada2;
+    --hos-fg-subtle: #7c7a6f;
+    --hos-fg-on-accent: #06283d;
+    --hos-fg-inverted: #1a1814;
+
+    --hos-border: #2c2a23;
+    --hos-border-subtle: #232119;
+    --hos-border-strong: #3b382f;
+    --hos-border-accent: rgb(56 189 248 / 0.45);
+
+    --hos-accent: #38bdf8;
+    --hos-accent-hover: #7dd3fc;
+    --hos-accent-active: #0ea5e9;
+    --hos-accent-subtle: #122a3a;
+    --hos-accent-fg: #7dd3fc;
+
+    --hos-danger: #e07a5f;
+    --hos-danger-hover: #eb9880;
+    --hos-danger-active: #c96548;
+    --hos-danger-subtle: #2a1b16;
+    --hos-danger-fg: #e07a5f;
+    --hos-danger-on: #2a1611;
+
+    --hos-success: #7fb069;
+    --hos-success-subtle: #1c2418;
+    --hos-success-fg: #93c47d;
+    --hos-success-on: #16210f;
+
+    --hos-warning: #d9a441;
+    --hos-warning-subtle: #2a2216;
+    --hos-warning-fg: #e5b95f;
+    --hos-warning-on: #241c0d;
+
+    --hos-info: #38bdf8;
+    --hos-info-subtle: #122a3a;
+    --hos-info-fg: #7dd3fc;
+    --hos-info-on: #06283d;
+
+    --hos-ring: #38bdf8;
+    --hos-ring-offset-color: #1a1814;
+    --hos-backdrop: rgb(0 0 0 / 0.55);
+    --hos-skeleton: rgb(241 239 231 / 0.06);
+    --hos-skeleton-shine: rgb(241 239 231 / 0.1);
+
+    --hos-shadow-sm: 0 1px 1px rgb(0 0 0 / 0.3);
+    --hos-shadow-md: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.45);
+    --hos-shadow-lg: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 34px rgb(0 0 0 / 0.55);
+    --hos-shadow-inset-top: inset 0 1px 0 rgb(241 239 231 / 0.05);
+
+
+  }
+
+  [data-theme="light"] {
+    /* styles/_theme-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+    color-scheme: light;
+
+    --hos-bg: #fbfbf9;
+    --hos-bg-sunken: #f3f3ef;
+    --hos-surface: #ffffff;
+    --hos-surface-raised: #ffffff;
+    --hos-surface-overlay: #ffffff;
+    --hos-surface-hover: rgb(23 23 15 / 0.04);
+    --hos-surface-active: rgb(23 23 15 / 0.07);
+    --hos-surface-selected: #e0f2fe;
+
+    --hos-fg: #17170f;
+    --hos-fg-muted: #54544c;
+    --hos-fg-subtle: #8a8a80;
+    --hos-fg-on-accent: #ffffff;
+    --hos-fg-inverted: #fbfbf9;
+
+    --hos-border: #e6e5de;
+    --hos-border-subtle: #efeee8;
+    --hos-border-strong: #d4d3ca;
+    --hos-border-accent: rgb(2 132 199 / 0.45);
+
+    --hos-accent: #0284c7;
+    --hos-accent-hover: #0369a1;
+    --hos-accent-active: #075985;
+    --hos-accent-subtle: #e0f2fe;
+    --hos-accent-fg: #0369a1;
+
+    --hos-danger: #b1361d;
+    --hos-danger-hover: #93301a;
+    --hos-danger-active: #7d2916;
+    --hos-danger-subtle: #f8ece9;
+    --hos-danger-fg: #b1361d;
+    --hos-danger-on: #ffffff;
+
+    --hos-success: #4d7c3f;
+    --hos-success-subtle: #edf4ea;
+    --hos-success-fg: #3f6633;
+    --hos-success-on: #ffffff;
+
+    --hos-warning: #a76f18;
+    --hos-warning-subtle: #fdf3e2;
+    --hos-warning-fg: #8a5c14;
+    --hos-warning-on: #ffffff;
+
+    --hos-info: #0284c7;
+    --hos-info-subtle: #e0f2fe;
+    --hos-info-fg: #0369a1;
+    --hos-info-on: #ffffff;
+
+    --hos-ring: #0284c7;
+    --hos-ring-offset-color: #fbfbf9;
+    --hos-backdrop: rgb(23 23 15 / 0.18);
+    --hos-skeleton: rgb(23 23 15 / 0.06);
+    --hos-skeleton-shine: rgb(23 23 15 / 0.1);
+
+    --hos-shadow-sm: 0 1px 1px rgb(23 23 15 / 0.03);
+    --hos-shadow-md: 0 1px 2px rgb(23 23 15 / 0.05), 0 4px 12px rgb(23 23 15 / 0.07);
+    --hos-shadow-lg: 0 1px 2px rgb(23 23 15 / 0.06), 0 8px 24px rgb(23 23 15 / 0.1);
+    --hos-shadow-inset-top: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+
+  }
+
+  /* Follow the OS only when the app has not pinned a theme. An explicit
+   * `data-theme` on <html> always wins, in both directions — that is what makes
+   * a user-facing theme toggle actually reliable. */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"]) {
+      /* styles/_theme-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+      color-scheme: light;
+
+      --hos-bg: #fbfbf9;
+      --hos-bg-sunken: #f3f3ef;
+      --hos-surface: #ffffff;
+      --hos-surface-raised: #ffffff;
+      --hos-surface-overlay: #ffffff;
+      --hos-surface-hover: rgb(23 23 15 / 0.04);
+      --hos-surface-active: rgb(23 23 15 / 0.07);
+      --hos-surface-selected: #e0f2fe;
+
+      --hos-fg: #17170f;
+      --hos-fg-muted: #54544c;
+      --hos-fg-subtle: #8a8a80;
+      --hos-fg-on-accent: #ffffff;
+      --hos-fg-inverted: #fbfbf9;
+
+      --hos-border: #e6e5de;
+      --hos-border-subtle: #efeee8;
+      --hos-border-strong: #d4d3ca;
+      --hos-border-accent: rgb(2 132 199 / 0.45);
+
+      --hos-accent: #0284c7;
+      --hos-accent-hover: #0369a1;
+      --hos-accent-active: #075985;
+      --hos-accent-subtle: #e0f2fe;
+      --hos-accent-fg: #0369a1;
+
+      --hos-danger: #b1361d;
+      --hos-danger-hover: #93301a;
+      --hos-danger-active: #7d2916;
+      --hos-danger-subtle: #f8ece9;
+      --hos-danger-fg: #b1361d;
+      --hos-danger-on: #ffffff;
+
+      --hos-success: #4d7c3f;
+      --hos-success-subtle: #edf4ea;
+      --hos-success-fg: #3f6633;
+      --hos-success-on: #ffffff;
+
+      --hos-warning: #a76f18;
+      --hos-warning-subtle: #fdf3e2;
+      --hos-warning-fg: #8a5c14;
+      --hos-warning-on: #ffffff;
+
+      --hos-info: #0284c7;
+      --hos-info-subtle: #e0f2fe;
+      --hos-info-fg: #0369a1;
+      --hos-info-on: #ffffff;
+
+      --hos-ring: #0284c7;
+      --hos-ring-offset-color: #fbfbf9;
+      --hos-backdrop: rgb(23 23 15 / 0.18);
+      --hos-skeleton: rgb(23 23 15 / 0.06);
+      --hos-skeleton-shine: rgb(23 23 15 / 0.1);
+
+      --hos-shadow-sm: 0 1px 1px rgb(23 23 15 / 0.03);
+      --hos-shadow-md: 0 1px 2px rgb(23 23 15 / 0.05), 0 4px 12px rgb(23 23 15 / 0.07);
+      --hos-shadow-lg: 0 1px 2px rgb(23 23 15 / 0.06), 0 8px 24px rgb(23 23 15 / 0.1);
+      --hos-shadow-inset-top: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+
+    }
+  }
+
+  /* Landing and other non-app pages sit on pitch black rather than the warm
+   * app ground. Set data-hos-canvas="black" on <html> or any wrapper. Light
+   * theme ignores it: there is no black paper. */
+  :root:not([data-theme="light"])[data-hos-canvas="black"],
+  :root:not([data-theme="light"]) [data-hos-canvas="black"] {
+    /* styles/_canvas-black.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here.
+     *
+     * The pitch-black ground used for landing and other non-app pages. Only the
+     * surface ramp changes; ink, accent and shadows stay as the dark theme sets
+     * them. */
+    --hos-bg: #000000;
+    --hos-bg-sunken: #070708;
+    --hos-surface: #0e0e10;
+    --hos-surface-raised: #0e0e10;
+    --hos-surface-overlay: #0e0e10;
+    --hos-border: #1e1e22;
+    --hos-border-subtle: #17171a;
+    --hos-border-strong: #2c2c31;
+    --hos-ring-offset-color: #000000;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-hos-canvas="black"],
+    :root:not([data-theme="dark"]):not([data-theme="light"]) [data-hos-canvas="black"] {
+      /* styles/_theme-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+      color-scheme: light;
+
+      --hos-bg: #fbfbf9;
+      --hos-bg-sunken: #f3f3ef;
+      --hos-surface: #ffffff;
+      --hos-surface-raised: #ffffff;
+      --hos-surface-overlay: #ffffff;
+      --hos-surface-hover: rgb(23 23 15 / 0.04);
+      --hos-surface-active: rgb(23 23 15 / 0.07);
+      --hos-surface-selected: #e0f2fe;
+
+      --hos-fg: #17170f;
+      --hos-fg-muted: #54544c;
+      --hos-fg-subtle: #8a8a80;
+      --hos-fg-on-accent: #ffffff;
+      --hos-fg-inverted: #fbfbf9;
+
+      --hos-border: #e6e5de;
+      --hos-border-subtle: #efeee8;
+      --hos-border-strong: #d4d3ca;
+      --hos-border-accent: rgb(2 132 199 / 0.45);
+
+      --hos-accent: #0284c7;
+      --hos-accent-hover: #0369a1;
+      --hos-accent-active: #075985;
+      --hos-accent-subtle: #e0f2fe;
+      --hos-accent-fg: #0369a1;
+
+      --hos-danger: #b1361d;
+      --hos-danger-hover: #93301a;
+      --hos-danger-active: #7d2916;
+      --hos-danger-subtle: #f8ece9;
+      --hos-danger-fg: #b1361d;
+      --hos-danger-on: #ffffff;
+
+      --hos-success: #4d7c3f;
+      --hos-success-subtle: #edf4ea;
+      --hos-success-fg: #3f6633;
+      --hos-success-on: #ffffff;
+
+      --hos-warning: #a76f18;
+      --hos-warning-subtle: #fdf3e2;
+      --hos-warning-fg: #8a5c14;
+      --hos-warning-on: #ffffff;
+
+      --hos-info: #0284c7;
+      --hos-info-subtle: #e0f2fe;
+      --hos-info-fg: #0369a1;
+      --hos-info-on: #ffffff;
+
+      --hos-ring: #0284c7;
+      --hos-ring-offset-color: #fbfbf9;
+      --hos-backdrop: rgb(23 23 15 / 0.18);
+      --hos-skeleton: rgb(23 23 15 / 0.06);
+      --hos-skeleton-shine: rgb(23 23 15 / 0.1);
+
+      --hos-shadow-sm: 0 1px 1px rgb(23 23 15 / 0.03);
+      --hos-shadow-md: 0 1px 2px rgb(23 23 15 / 0.05), 0 4px 12px rgb(23 23 15 / 0.07);
+      --hos-shadow-lg: 0 1px 2px rgb(23 23 15 / 0.06), 0 8px 24px rgb(23 23 15 / 0.1);
+      --hos-shadow-inset-top: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+
+    }
+  }
+
+  /* ===========================================================================
+   * DENSITY — control geometry only. Deliberately does NOT touch the type or
+   * spacing scales, so switching density can never reflow page-level layout.
+   * Scopes to any subtree: a compact <Table> inside a comfortable app is valid.
+   * ========================================================================= */
+  :root,
+  [data-density="default"] {
+    --hos-control-h-sm: 28px;
+    --hos-control-h-md: 32px;
+    --hos-control-h-lg: 38px;
+    --hos-control-px-sm: var(--hos-space-2);
+    --hos-control-px-md: var(--hos-space-3);
+    --hos-control-px-lg: var(--hos-space-4);
+    --hos-control-gap: var(--hos-space-1-5);
+    --hos-row-py: var(--hos-space-2);
+  }
+
+  [data-density="compact"] {
+    --hos-control-h-sm: 24px;
+    --hos-control-h-md: 28px;
+    --hos-control-h-lg: 32px;
+    --hos-control-px-sm: var(--hos-space-1-5);
+    --hos-control-px-md: var(--hos-space-2);
+    --hos-control-px-lg: var(--hos-space-3);
+    --hos-control-gap: var(--hos-space-1);
+    --hos-row-py: var(--hos-space-1);
+  }
+
+  [data-density="comfortable"] {
+    --hos-control-h-sm: 32px;
+    --hos-control-h-md: 38px;
+    --hos-control-h-lg: 44px;
+    --hos-control-px-sm: var(--hos-space-3);
+    --hos-control-px-md: var(--hos-space-4);
+    --hos-control-px-lg: var(--hos-space-5);
+    --hos-control-gap: var(--hos-space-2);
+    --hos-row-py: var(--hos-space-3);
+  }
+}
+
+
+/* styles/base.css */
+@layer hosanna.base {
+  html {
+    font-family: var(--hos-font-sans);
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+  }
+
+  body {
+    background-color: var(--hos-bg);
+    color: var(--hos-fg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv05", "ss01";
+  }
+
+  ::selection {
+    background-color: var(--hos-accent-subtle);
+    color: var(--hos-fg);
+  }
+
+  /* The one focus ring. Every component either inherits this or reproduces it
+   * exactly via the --hos-ring tokens; there is no second focus style in the
+   * library. :focus-visible means keyboard users get it and mouse users don't. */
+  :focus-visible,
+  .hos-focus-ring:focus-visible,
+  [data-hos-focus]:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+    border-radius: var(--hos-radius-sm);
+  }
+
+  /* Scrollbars styled to match the surface ramp. Firefox gets the standard
+   * two-value property; WebKit/Blink get the pseudo-elements. */
+  * {
+    scrollbar-color: var(--hos-border-strong) transparent;
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--hos-border-strong);
+    border: 3px solid transparent;
+    border-radius: var(--hos-radius-full);
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--hos-fg-subtle);
+    background-clip: content-box;
+  }
+
+  /* Reduced motion collapses the duration tokens at the source, so every
+   * component that animates via var(--hos-dur-*) is covered without each one
+   * needing its own media query. Durations go to 1ms rather than 0 so
+   * transitionend / animationend still fire and presence logic keeps working. */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --hos-dur-instant: 1ms;
+      --hos-dur-fast: 1ms;
+      --hos-dur-base: 1ms;
+      --hos-dur-slow: 1ms;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+
+/* styles/animations.css */
+@layer hosanna.components {
+  /* Shared enter/exit keyframes.
+   *
+   * Every overlay in the library animates via `@keyframes` rather than
+   * `transition`, because `usePresence` unmounts on `animationend` — a
+   * transition on an element being removed frequently never completes, which
+   * would strand the node in the DOM forever.
+   *
+   * Keyframes are global regardless of which file declares them, so they live
+   * here rather than being redefined per component. */
+
+  /* Anchored panels: popover, menu, select, combobox. Scales from
+   * --hos-transform-origin, which the positioner sets to the anchor's edge. */
+  @keyframes hos-pop-in {
+    from {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 -2px;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes hos-pop-out {
+    from {
+      opacity: 1;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 0.98;
+    }
+  }
+
+  /* Backdrops. */
+  @keyframes hos-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes hos-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Centred dialogs: a short rise, not a bounce. */
+  @keyframes hos-dialog-in {
+    from {
+      opacity: 0;
+      scale: 0.98;
+      translate: 0 6px;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes hos-dialog-out {
+    from {
+      opacity: 1;
+      scale: 1;
+      translate: 0 0;
+    }
+    to {
+      opacity: 0;
+      scale: 0.99;
+      translate: 0 4px;
+    }
+  }
+
+  /* Edge-anchored surfaces. Direction is chosen by data-side on the panel. */
+  @keyframes hos-slide-in-right {
+    from {
+      translate: 100% 0;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes hos-slide-out-right {
+    from {
+      translate: 0 0;
+    }
+    to {
+      translate: 100% 0;
+    }
+  }
+
+  @keyframes hos-slide-in-left {
+    from {
+      translate: -100% 0;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes hos-slide-out-left {
+    from {
+      translate: 0 0;
+    }
+    to {
+      translate: -100% 0;
+    }
+  }
+
+  @keyframes hos-slide-in-bottom {
+    from {
+      translate: 0 100%;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes hos-slide-out-bottom {
+    from {
+      translate: 0 0;
+    }
+    to {
+      translate: 0 100%;
+    }
+  }
+
+  @keyframes hos-slide-in-top {
+    from {
+      translate: 0 -100%;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes hos-slide-out-top {
+    from {
+      translate: 0 0;
+    }
+    to {
+      translate: 0 -100%;
+    }
+  }
+
+  /* Toasts enter from the edge they are stacked against. */
+  @keyframes hos-toast-in {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+      scale: 0.98;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+
+  @keyframes hos-toast-out {
+    from {
+      opacity: 1;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+}
+
+
+
+/* Components — alphabetical within each group. Each file opens with
+ * `@layer hosanna.components`, so ordering here does not affect specificity. */
+
+/* forms */
+/* components/button/button.css */
+@layer hosanna.components {
+  .hos-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--hos-control-gap);
+    flex: none;
+
+    height: var(--hos-button-h-md);
+    padding-inline: var(--hos-control-px-md);
+
+    font-family: inherit;
+    font-size: var(--hos-text-base);
+    line-height: 1;
+    font-weight: var(--hos-weight-medium);
+    white-space: nowrap;
+    text-decoration: none;
+
+    border: var(--hos-border-width) solid transparent;
+    border-radius: var(--hos-radius-md);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    /* Only colour and shadow transition. Animating geometry on a control this
+     * small reads as sloppiness rather than polish. */
+    transition:
+      background-color var(--hos-dur-fast) var(--hos-ease-out),
+      border-color var(--hos-dur-fast) var(--hos-ease-out),
+      color var(--hos-dur-fast) var(--hos-ease-out),
+      box-shadow var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-button[data-size="sm"] {
+    height: var(--hos-button-h-sm);
+    padding-inline: var(--hos-control-px-sm);
+    font-size: var(--hos-text-sm);
+    border-radius: var(--hos-radius-sm);
+  }
+
+  .hos-button[data-size="lg"] {
+    height: var(--hos-button-h-lg);
+    padding-inline: var(--hos-control-px-lg);
+    font-size: var(--hos-text-md);
+  }
+
+  .hos-button[data-full-width] {
+    width: 100%;
+  }
+
+  .hos-button:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  /* Covers both the real `disabled` attribute and the aria-disabled used while
+   * loading, so the two states look identical. */
+  .hos-button:disabled,
+  .hos-button[aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  .hos-button:disabled:not([data-loading]) {
+    opacity: 0.5;
+  }
+
+  .hos-button__label {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hos-button__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+  }
+
+  .hos-button__icon > svg {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* --- loading ------------------------------------------------------------- */
+
+  /* The label keeps its box and just goes invisible, and the spinner is taken
+   * out of flow on top of it. The button's width therefore never changes when
+   * it starts loading — a control that resizes under the cursor is how you get
+   * an accidental click on whatever was next to it. */
+  .hos-button[data-loading] .hos-button__label {
+    visibility: hidden;
+  }
+
+  .hos-button__spinner {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  /* --- variants ------------------------------------------------------------ */
+
+  .hos-button[data-variant="primary"] {
+    background-color: var(--hos-accent);
+    color: var(--hos-fg-on-accent);
+    box-shadow: var(--hos-shadow-inset-top);
+  }
+
+  .hos-button[data-variant="primary"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-accent-hover);
+  }
+
+  .hos-button[data-variant="primary"]:active:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-accent-active);
+  }
+
+  .hos-button[data-variant="secondary"] {
+    background-color: var(--hos-surface);
+    border-color: var(--hos-border);
+    color: var(--hos-fg);
+  }
+
+  .hos-button[data-variant="secondary"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-surface-raised);
+    border-color: var(--hos-border-strong);
+  }
+
+  .hos-button[data-variant="secondary"]:active:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-surface-active);
+  }
+
+  .hos-button[data-variant="ghost"] {
+    background-color: transparent;
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-button[data-variant="ghost"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-surface-hover);
+    color: var(--hos-fg);
+  }
+
+  .hos-button[data-variant="ghost"]:active:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-surface-active);
+  }
+
+  .hos-button[data-variant="danger"] {
+    background-color: var(--hos-danger);
+    color: var(--hos-danger-on);
+    box-shadow: var(--hos-shadow-inset-top);
+  }
+
+  .hos-button[data-variant="danger"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-danger-hover);
+  }
+
+  .hos-button[data-variant="danger"]:active:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hos-danger-active);
+  }
+
+  /* A link-styled button is still a button: it keeps keyboard activation and
+   * the focus ring, and only sheds the box. */
+  .hos-button[data-variant="link"] {
+    height: auto;
+    padding: 0;
+    background: none;
+    border-color: transparent;
+    color: var(--hos-accent-fg);
+    border-radius: var(--hos-radius-xs);
+  }
+
+  .hos-button[data-variant="link"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+
+/* components/icon-button/icon-button.css */
+@layer hosanna.components {
+  /* Square rather than pill-shaped: width is locked to the control height so a
+   * row of icon buttons lines up on a grid regardless of density. */
+  .hos-icon-button {
+    width: var(--hos-icon-button-md);
+    padding-inline: 0;
+  }
+
+  .hos-icon-button[data-size="sm"] {
+    width: var(--hos-icon-button-sm);
+  }
+
+  .hos-icon-button[data-size="lg"] {
+    width: var(--hos-icon-button-lg);
+  }
+
+  .hos-icon-button__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hos-icon-button__icon > svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .hos-icon-button[data-size="sm"] .hos-icon-button__icon > svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .hos-icon-button[data-size="lg"] .hos-icon-button__icon > svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+
+/* components/checkbox/checkbox.css */
+@layer hosanna.components {
+  .hos-checkbox {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--hos-space-2);
+    --hos-checkbox-size: 16px;
+  }
+
+  .hos-checkbox[data-size="sm"] {
+    --hos-checkbox-size: 14px;
+  }
+
+  .hos-checkbox__control {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    /* Optically centre the box against the first line of label text. */
+    margin-top: calc((var(--hos-text-base-lh) - var(--hos-checkbox-size)) / 2);
+  }
+
+  /* The native input stays on top of the drawn box at full size, so it keeps
+   * the click target, the focus ring anchor and every native behaviour —
+   * `opacity: 0` rather than display:none, which would make it unfocusable. */
+  .hos-checkbox__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .hos-checkbox__input:disabled {
+    cursor: not-allowed;
+  }
+
+  .hos-checkbox__box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--hos-checkbox-size);
+    height: var(--hos-checkbox-size);
+
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border-strong);
+    border-radius: var(--hos-radius-xs);
+    color: var(--hos-fg-on-accent);
+
+    transition:
+      background-color var(--hos-dur-fast) var(--hos-ease-out),
+      border-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-checkbox__input:hover:not(:disabled) + .hos-checkbox__box {
+    border-color: var(--hos-accent);
+  }
+
+  .hos-checkbox__input:focus-visible + .hos-checkbox__box {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-checkbox__input:checked + .hos-checkbox__box,
+  .hos-checkbox__input:indeterminate + .hos-checkbox__box {
+    background-color: var(--hos-accent);
+    border-color: var(--hos-accent);
+  }
+
+  .hos-checkbox[data-invalid] .hos-checkbox__box {
+    border-color: var(--hos-danger);
+  }
+
+  .hos-checkbox__input:disabled + .hos-checkbox__box {
+    opacity: 0.5;
+  }
+
+  .hos-checkbox__mark {
+    width: 100%;
+    height: 100%;
+    /* The tick is drawn by stroking a path; animating the dash offset makes it
+     * appear to be written rather than just fading in. */
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    opacity: 0;
+    transition:
+      stroke-dashoffset var(--hos-dur-base) var(--hos-ease-out),
+      opacity var(--hos-dur-instant) linear;
+  }
+
+  .hos-checkbox__input:checked + .hos-checkbox__box .hos-checkbox__mark,
+  .hos-checkbox__input:indeterminate + .hos-checkbox__box .hos-checkbox__mark {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  .hos-checkbox__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-0-5);
+    min-width: 0;
+  }
+
+  .hos-checkbox__label {
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    color: var(--hos-fg);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hos-checkbox[data-size="sm"] .hos-checkbox__label {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+  }
+
+  .hos-checkbox__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-checkbox[data-disabled] .hos-checkbox__label,
+  .hos-checkbox[data-disabled] .hos-checkbox__description {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+}
+
+
+/* components/field/field.css */
+@layer hosanna.components {
+  .hos-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1-5);
+    min-width: 0;
+  }
+
+  /* Label beside the control rather than above it — for settings panels and
+   * dense forms where vertical space is the scarce resource. */
+  .hos-field[data-orientation="horizontal"] {
+    display: grid;
+    grid-template-columns: var(--hos-field-label-width, 160px) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--hos-space-4);
+    row-gap: var(--hos-space-1);
+  }
+
+  .hos-field[data-orientation="horizontal"] > .hos-label {
+    /* Optically centre the label against the first line of the control. */
+    min-height: var(--hos-control-h-md);
+    align-items: center;
+  }
+
+  .hos-field[data-orientation="horizontal"] .hos-field__description,
+  .hos-field[data-orientation="horizontal"] .hos-field__error {
+    grid-column: 2;
+  }
+
+  .hos-field__control {
+    min-width: 0;
+  }
+
+  .hos-field__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-field__error {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-danger-fg);
+  }
+
+  /* `hidden` alone is overridden by the flex display above — the live region
+   * must stay in the tree while genuinely invisible. */
+  .hos-field__error[hidden] {
+    display: none;
+  }
+}
+
+
+/* components/input/input.css */
+@layer hosanna.components {
+  .hos-input {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-2);
+    width: 100%;
+    min-width: 0;
+
+    height: var(--hos-control-h-md);
+    padding-inline: var(--hos-control-px-md);
+
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    color: var(--hos-fg);
+
+    transition:
+      border-color var(--hos-dur-fast) var(--hos-ease-out),
+      box-shadow var(--hos-dur-fast) var(--hos-ease-out),
+      background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-input:hover:not([data-disabled]) {
+    border-color: var(--hos-border-strong);
+  }
+
+  /* The ring lives on the wrapper, not the inner <input>, so adornments sit
+   * inside the highlighted box instead of outside it. :focus-within is what
+   * makes that work while real focus is on the input. */
+  .hos-input:focus-within {
+    border-color: var(--hos-accent);
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: 0;
+  }
+
+  .hos-input[data-invalid] {
+    border-color: var(--hos-danger);
+  }
+
+  .hos-input[data-invalid]:focus-within {
+    outline-color: var(--hos-danger);
+  }
+
+  .hos-input[data-disabled] {
+    background-color: var(--hos-bg-sunken);
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+
+  .hos-input[data-size="sm"] {
+    height: var(--hos-control-h-sm);
+    padding-inline: var(--hos-control-px-sm);
+    border-radius: var(--hos-radius-sm);
+    gap: var(--hos-space-1-5);
+  }
+
+  .hos-input[data-size="lg"] {
+    height: var(--hos-control-h-lg);
+    padding-inline: var(--hos-control-px-lg);
+  }
+
+  .hos-input__control {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+
+    font-size: var(--hos-text-base);
+    color: inherit;
+  }
+
+  .hos-input[data-size="sm"] .hos-input__control {
+    font-size: var(--hos-text-sm);
+  }
+
+  .hos-input[data-size="lg"] .hos-input__control {
+    font-size: var(--hos-text-md);
+  }
+
+  .hos-input__control::placeholder {
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-input__control:disabled {
+    cursor: not-allowed;
+    /* Safari fades disabled inputs on top of the colour we set. */
+    -webkit-text-fill-color: var(--hos-fg-subtle);
+    opacity: 1;
+  }
+
+  /* Number spinners are near-impossible to style consistently and are a
+   * frequent source of accidental value changes on scroll. */
+  .hos-input__control[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .hos-input__control[type="number"]::-webkit-outer-spin-button,
+  .hos-input__control[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .hos-input__control[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
+  .hos-input__slot {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    color: var(--hos-fg-subtle);
+    font-size: var(--hos-text-sm);
+  }
+
+  .hos-input__slot > svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Buttons inside a slot lose the outer padding so they can sit flush against
+   * the control's edge without a lopsided gap. */
+  .hos-input__slot[data-position="end"]:has(> button) {
+    margin-inline-end: calc(var(--hos-space-1) * -1);
+  }
+
+  .hos-input__slot[data-position="start"]:has(> button) {
+    margin-inline-start: calc(var(--hos-space-1) * -1);
+  }
+}
+
+
+/* components/label/label.css */
+@layer hosanna.components {
+  .hos-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg);
+
+    /* Clicking a label focuses its control, so it should not double as a text
+     * selection target. */
+    user-select: none;
+  }
+
+  .hos-label[data-size="sm"] {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+  }
+
+  .hos-label__required {
+    color: var(--hos-danger-fg);
+    font-weight: var(--hos-weight-normal);
+  }
+
+  .hos-label__optional {
+    color: var(--hos-fg-subtle);
+    font-weight: var(--hos-weight-normal);
+    font-size: var(--hos-text-xs);
+  }
+
+  .hos-label[data-disabled="true"] {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+}
+
+
+/* components/radio/radio.css */
+@layer hosanna.components {
+  .hos-radio-group {
+    display: flex;
+    gap: var(--hos-space-2);
+  }
+
+  .hos-radio-group[data-orientation="vertical"] {
+    flex-direction: column;
+  }
+
+  .hos-radio-group[data-orientation="horizontal"] {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--hos-space-4);
+  }
+
+  .hos-radio {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--hos-space-2);
+    --hos-radio-size: 16px;
+  }
+
+  .hos-radio[data-size="sm"] {
+    --hos-radio-size: 14px;
+  }
+
+  .hos-radio__control {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    width: var(--hos-radio-size);
+    height: var(--hos-radio-size);
+    margin-top: calc((var(--hos-text-base-lh) - var(--hos-radio-size)) / 2);
+
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border-strong);
+    border-radius: var(--hos-radius-full);
+
+    transition: border-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-radio__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .hos-radio__input:disabled {
+    cursor: not-allowed;
+  }
+
+  .hos-radio__dot {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: calc(var(--hos-radio-size) / 2);
+    height: calc(var(--hos-radio-size) / 2);
+    border-radius: var(--hos-radius-full);
+    background-color: var(--hos-accent);
+
+    /* Scaling from zero rather than fading keeps the dot crisp at every step —
+     * a fading 8px circle spends most of the transition looking like a smudge. */
+    scale: 0;
+    transition: scale var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-radio__input:checked ~ .hos-radio__dot {
+    scale: 1;
+  }
+
+  .hos-radio__control:has(.hos-radio__input:hover:not(:disabled)),
+  .hos-radio__control:has(.hos-radio__input:checked) {
+    border-color: var(--hos-accent);
+  }
+
+  .hos-radio__control:has(.hos-radio__input:focus-visible) {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-radio[data-invalid] .hos-radio__control {
+    border-color: var(--hos-danger);
+  }
+
+  .hos-radio[data-disabled] .hos-radio__control {
+    opacity: 0.5;
+  }
+
+  .hos-radio__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-0-5);
+    min-width: 0;
+  }
+
+  .hos-radio__label {
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    color: var(--hos-fg);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hos-radio[data-size="sm"] .hos-radio__label {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+  }
+
+  .hos-radio__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-radio[data-disabled] .hos-radio__label,
+  .hos-radio[data-disabled] .hos-radio__description {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+}
+
+
+/* components/select/select.css */
+@layer hosanna.components {
+  .hos-select {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hos-space-2);
+    width: 100%;
+    min-width: 0;
+
+    height: var(--hos-control-h-md);
+    padding-inline: var(--hos-control-px-md);
+
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    color: var(--hos-fg);
+
+    font-size: var(--hos-text-base);
+    text-align: start;
+    cursor: pointer;
+
+    transition:
+      border-color var(--hos-dur-fast) var(--hos-ease-out),
+      background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-select[data-size="sm"] {
+    height: var(--hos-control-h-sm);
+    padding-inline: var(--hos-control-px-sm);
+    font-size: var(--hos-text-sm);
+    border-radius: var(--hos-radius-sm);
+  }
+
+  .hos-select[data-size="lg"] {
+    height: var(--hos-control-h-lg);
+    padding-inline: var(--hos-control-px-lg);
+    font-size: var(--hos-text-md);
+  }
+
+  .hos-select:hover:not(:disabled) {
+    border-color: var(--hos-border-strong);
+  }
+
+  .hos-select:focus-visible {
+    border-color: var(--hos-accent);
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: 0;
+  }
+
+  .hos-select[data-open] {
+    border-color: var(--hos-accent);
+  }
+
+  .hos-select[data-invalid] {
+    border-color: var(--hos-danger);
+  }
+
+  .hos-select:disabled {
+    background-color: var(--hos-bg-sunken);
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+
+  .hos-select[data-placeholder] .hos-select__value {
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-select__value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hos-select__chevron {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    color: var(--hos-fg-subtle);
+    transition: rotate var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-select[data-open] .hos-select__chevron {
+    rotate: 180deg;
+  }
+
+  /* --- list ---------------------------------------------------------------- */
+
+  .hos-select__list {
+    z-index: var(--hos-z-popover);
+    /* Width comes from the trigger so the list lines up under it, but a long
+     * option is allowed to widen it rather than being truncated. */
+    min-width: var(--hos-anchor-width, 180px);
+    max-width: min(90vw, 420px);
+    /* Never taller than the space the positioner measured. */
+    max-height: min(var(--hos-available-height, 320px), 320px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding: var(--hos-space-1);
+
+    background-color: var(--hos-surface-overlay);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    box-shadow: var(--hos-shadow-lg);
+
+    transform-origin: var(--hos-transform-origin, center top);
+  }
+
+  .hos-select__list[data-state="open"] {
+    animation: hos-pop-in var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-select__list[data-state="closed"] {
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+  }
+
+  .hos-select__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hos-space-2);
+
+    padding: var(--hos-space-1-5) var(--hos-space-2);
+    border-radius: var(--hos-radius-sm);
+
+    font-size: var(--hos-text-base);
+    color: var(--hos-fg);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+  }
+
+  .hos-select__list[data-size="sm"] .hos-select__item {
+    font-size: var(--hos-text-sm);
+    padding-block: var(--hos-space-1);
+  }
+
+  /* Hover and keyboard focus produce the same highlight — there is only ever
+   * one "active" option, whether the user got there with a mouse or the arrows. */
+  .hos-select__item:hover:not([data-disabled]),
+  .hos-select__item:focus-visible,
+  .hos-select__item:focus {
+    background-color: var(--hos-surface-hover);
+  }
+
+  .hos-select__item[data-selected] {
+    color: var(--hos-accent-fg);
+  }
+
+  .hos-select__item[data-disabled] {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+
+  .hos-select__item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .hos-select__item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hos-select__item-description {
+    font-size: var(--hos-text-xs);
+    line-height: var(--hos-text-xs-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-select__item-check {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    /* Kept in the layout at all times so selecting an option does not shift the
+     * text of every row beside it. */
+    opacity: 0;
+  }
+
+  .hos-select__item[data-selected] .hos-select__item-check {
+    opacity: 1;
+  }
+
+  .hos-select__group-label {
+    padding: var(--hos-space-1-5) var(--hos-space-2) var(--hos-space-1);
+    font-size: var(--hos-text-xs);
+    font-weight: var(--hos-weight-medium);
+    letter-spacing: var(--hos-tracking-wide);
+    text-transform: uppercase;
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-select__separator {
+    height: 1px;
+    margin: var(--hos-space-1) calc(var(--hos-space-1) * -1);
+    background-color: var(--hos-border-subtle);
+  }
+}
+
+
+/* components/switch/switch.css */
+@layer hosanna.components {
+  .hos-switch {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--hos-space-2-5);
+    --hos-switch-w: 32px;
+    --hos-switch-h: 18px;
+    --hos-switch-pad: 2px;
+  }
+
+  .hos-switch[data-size="sm"] {
+    --hos-switch-w: 26px;
+    --hos-switch-h: 15px;
+  }
+
+  /* Label first, control pushed to the far edge — the standard settings row. */
+  .hos-switch[data-label-position="start"] {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hos-switch__control {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    margin-top: calc((var(--hos-text-base-lh) - var(--hos-switch-h)) / 2);
+  }
+
+  .hos-switch__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .hos-switch__input:disabled {
+    cursor: not-allowed;
+  }
+
+  .hos-switch__track {
+    display: inline-flex;
+    align-items: center;
+    width: var(--hos-switch-w);
+    height: var(--hos-switch-h);
+    padding: var(--hos-switch-pad);
+
+    background-color: var(--hos-border-strong);
+    border-radius: var(--hos-radius-full);
+
+    transition: background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-switch__thumb {
+    width: calc(var(--hos-switch-h) - var(--hos-switch-pad) * 2);
+    height: calc(var(--hos-switch-h) - var(--hos-switch-pad) * 2);
+    border-radius: var(--hos-radius-full);
+    background-color: var(--hos-fg);
+    box-shadow: var(--hos-shadow-sm);
+
+    /* translate rather than margin/left: it runs on the compositor, so the
+     * thumb stays smooth even when toggling triggers an expensive re-render. */
+    transition: translate var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-switch__input:checked + .hos-switch__track {
+    background-color: var(--hos-accent);
+  }
+
+  .hos-switch__input:checked + .hos-switch__track .hos-switch__thumb {
+    translate: calc(var(--hos-switch-w) - var(--hos-switch-h)) 0;
+  }
+
+  .hos-switch__input:focus-visible + .hos-switch__track {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-switch__input:hover:not(:disabled) + .hos-switch__track {
+    background-color: var(--hos-fg-subtle);
+  }
+
+  .hos-switch__input:checked:hover:not(:disabled) + .hos-switch__track {
+    background-color: var(--hos-accent-hover);
+  }
+
+  .hos-switch[data-disabled] .hos-switch__track {
+    opacity: 0.5;
+  }
+
+  .hos-switch__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-0-5);
+    min-width: 0;
+  }
+
+  .hos-switch__label {
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    color: var(--hos-fg);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hos-switch__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-switch[data-disabled] .hos-switch__label,
+  .hos-switch[data-disabled] .hos-switch__description {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+}
+
+
+/* components/textarea/textarea.css */
+@layer hosanna.components {
+  .hos-textarea {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hos-textarea__control {
+    width: 100%;
+    min-width: 0;
+
+    padding: var(--hos-space-2) var(--hos-control-px-md);
+
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    color: var(--hos-fg);
+
+    font-family: inherit;
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+
+    /* Vertical only: a horizontally resizable textarea escapes its form column
+     * and breaks the layout around it. */
+    resize: vertical;
+
+    transition:
+      border-color var(--hos-dur-fast) var(--hos-ease-out),
+      box-shadow var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-textarea__control::placeholder {
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-textarea__control:hover:not(:disabled) {
+    border-color: var(--hos-border-strong);
+  }
+
+  .hos-textarea__control:focus-visible,
+  .hos-textarea__control:focus {
+    border-color: var(--hos-accent);
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: 0;
+  }
+
+  .hos-textarea[data-invalid] .hos-textarea__control {
+    border-color: var(--hos-danger);
+  }
+
+  .hos-textarea[data-invalid] .hos-textarea__control:focus {
+    outline-color: var(--hos-danger);
+  }
+
+  .hos-textarea__control:disabled {
+    background-color: var(--hos-bg-sunken);
+    color: var(--hos-fg-subtle);
+    -webkit-text-fill-color: var(--hos-fg-subtle);
+    opacity: 1;
+    cursor: not-allowed;
+    resize: none;
+  }
+
+  /* The height is being driven from JS; a drag handle would fight it. */
+  .hos-textarea[data-auto-resize] .hos-textarea__control {
+    resize: none;
+    overflow-y: hidden;
+  }
+
+  .hos-textarea__count {
+    align-self: flex-end;
+    margin-top: var(--hos-space-1);
+    font-size: var(--hos-text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-textarea__count[data-near-limit] {
+    color: var(--hos-warning-fg);
+  }
+}
+
+
+
+/* layout & structure */
+/* components/accordion/accordion.css */
+@layer hosanna.components {
+  .hos-accordion {
+    display: flex;
+    flex-direction: column;
+    border-block: var(--hos-border-width) solid var(--hos-border);
+  }
+
+  .hos-accordion__item + .hos-accordion__item {
+    border-top: var(--hos-border-width) solid var(--hos-border);
+  }
+
+  .hos-accordion__heading {
+    margin: 0;
+    font: inherit;
+  }
+
+  .hos-accordion__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hos-space-3);
+    width: 100%;
+
+    padding-block: var(--hos-space-3);
+
+    font-size: var(--hos-text-base);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg);
+    text-align: start;
+    cursor: pointer;
+
+    transition: color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-accordion__trigger:hover {
+    color: var(--hos-accent-fg);
+  }
+
+  .hos-accordion__trigger:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: -2px;
+    border-radius: var(--hos-radius-sm);
+  }
+
+  .hos-accordion__item[data-disabled] .hos-accordion__trigger {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .hos-accordion__chevron {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--hos-fg-subtle);
+    transition: rotate var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-accordion__item[data-state="open"] .hos-accordion__chevron {
+    rotate: 180deg;
+  }
+
+  /* Height animation without measuring anything in JS.
+   *
+   * A grid row of `0fr` collapses to zero and `1fr` expands to exactly the
+   * content's natural height — and unlike max-height, the transition is
+   * interpolable in both directions with no arbitrary magic number that
+   * silently clips tall content. */
+  .hos-accordion__content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-accordion__content[data-state="open"] {
+    grid-template-rows: 1fr;
+  }
+
+  .hos-accordion__content-inner {
+    /* Required: a grid item does not shrink below min-content without it, so
+     * the 0fr row would never actually reach zero. */
+    overflow: hidden;
+    min-height: 0;
+
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-accordion__content[data-state="open"] .hos-accordion__content-inner {
+    padding-block-end: var(--hos-space-4);
+  }
+}
+
+
+/* components/breadcrumb/breadcrumb.css */
+@layer hosanna.components {
+  .hos-breadcrumb {
+    min-width: 0;
+  }
+
+  .hos-breadcrumb__list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--hos-space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+
+  .hos-breadcrumb__item {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .hos-breadcrumb__link {
+    font-size: var(--hos-text-sm);
+    color: var(--hos-fg-muted);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: var(--hos-radius-xs);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 20ch;
+
+    transition: color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-breadcrumb__link:hover {
+    color: var(--hos-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .hos-breadcrumb__link:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-breadcrumb__current {
+    font-size: var(--hos-text-sm);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hos-breadcrumb__separator {
+    display: inline-flex;
+    align-items: center;
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-breadcrumb__separator > svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .hos-breadcrumb__expand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    padding-inline: var(--hos-space-1-5);
+
+    font-size: var(--hos-text-sm);
+    line-height: 1;
+    color: var(--hos-fg-muted);
+    background-color: var(--hos-surface-hover);
+    border-radius: var(--hos-radius-sm);
+    cursor: pointer;
+  }
+
+  .hos-breadcrumb__expand:hover {
+    background-color: var(--hos-surface-active);
+    color: var(--hos-fg);
+  }
+
+  .hos-breadcrumb__expand:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+}
+
+
+/* components/card/card.css */
+@layer hosanna.components {
+  .hos-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-lg);
+    color: var(--hos-fg);
+
+    /* Clips a header background or a full-bleed image to the rounded corner
+     * without each child needing to know the radius. */
+    overflow: hidden;
+  }
+
+  .hos-card[data-variant="raised"] {
+    border-color: var(--hos-border-subtle);
+    box-shadow: var(--hos-shadow-md);
+  }
+
+  .hos-card[data-variant="ghost"] {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .hos-card[data-interactive] {
+    cursor: pointer;
+    text-align: start;
+    transition:
+      border-color var(--hos-dur-fast) var(--hos-ease-out),
+      background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-card[data-interactive]:hover {
+    border-color: var(--hos-border-strong);
+    background-color: var(--hos-surface-raised);
+  }
+
+  .hos-card[data-interactive]:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1);
+    padding: var(--hos-space-4);
+  }
+
+  /* Collapse the doubled gap when a header is followed directly by a body. */
+  .hos-card__header + .hos-card__body {
+    padding-top: 0;
+  }
+
+  .hos-card__title {
+    font-size: var(--hos-text-md);
+    line-height: var(--hos-text-md-lh);
+    font-weight: var(--hos-weight-semibold);
+    letter-spacing: var(--hos-tracking-tight);
+    color: var(--hos-fg);
+  }
+
+  .hos-card__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-card__body {
+    flex: 1 1 auto;
+    padding: var(--hos-space-4);
+    min-width: 0;
+  }
+
+  .hos-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--hos-space-2);
+
+    padding: var(--hos-space-3) var(--hos-space-4);
+    border-top: var(--hos-border-width) solid var(--hos-border-subtle);
+    background-color: var(--hos-bg-sunken);
+  }
+}
+
+
+/* components/container/container.css */
+@layer hosanna.components {
+  .hos-container {
+    /* Not width: 100%. With content-box that adds the inline padding *outside*
+     * a box already as wide as the parent, overflowing every viewport narrower
+     * than the max-width by exactly the padding. width: auto lets a block
+     * element fill its parent and subtract the padding from the content box
+     * instead; max-width still caps the content column at the token value, and
+     * margin-inline: auto still centres it once that cap engages. */
+    width: auto;
+    margin-inline: auto;
+    padding-inline: var(--hos-container-padding, var(--hos-space-4));
+    /* The padding is part of the max-width, so the content column is exactly
+     * the token value rather than the token plus padding. */
+    box-sizing: content-box;
+    max-width: var(--hos-container-xl);
+  }
+
+  .hos-container[data-size="sm"] {
+    max-width: var(--hos-container-sm);
+  }
+  .hos-container[data-size="md"] {
+    max-width: var(--hos-container-md);
+  }
+  .hos-container[data-size="lg"] {
+    max-width: var(--hos-container-lg);
+  }
+  .hos-container[data-size="xl"] {
+    max-width: var(--hos-container-xl);
+  }
+  .hos-container[data-size="2xl"] {
+    max-width: var(--hos-container-2xl);
+  }
+  .hos-container[data-size="full"] {
+    max-width: none;
+  }
+}
+
+
+/* components/grid/grid.css */
+@layer hosanna.components {
+  .hos-grid {
+    display: grid;
+    grid-template-columns: var(--hos-grid-template, repeat(1, minmax(0, 1fr)));
+    gap: var(--hos-grid-gap, var(--hos-space-4));
+    row-gap: var(--hos-grid-row-gap, var(--hos-grid-gap, var(--hos-space-4)));
+    column-gap: var(
+      --hos-grid-column-gap,
+      var(--hos-grid-gap, var(--hos-space-4))
+    );
+    align-items: var(--hos-grid-align, stretch);
+    min-width: 0;
+  }
+
+  /* Grid items inherit `min-width: auto`, so a wide child (a table, a long
+   * unbroken string) stretches its track past the container. */
+  .hos-grid > * {
+    min-width: 0;
+  }
+}
+
+
+/* components/page-header/page-header.css */
+@layer hosanna.components {
+  .hos-page-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-3);
+    padding-block: var(--hos-space-5);
+    min-width: 0;
+  }
+
+  .hos-page-header[data-sticky] {
+    position: sticky;
+    top: 0;
+    z-index: var(--hos-z-sticky);
+    background-color: var(--hos-bg);
+    border-bottom: var(--hos-border-width) solid var(--hos-border);
+    padding-block: var(--hos-space-4);
+  }
+
+  .hos-page-header__main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--hos-space-4);
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .hos-page-header__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1);
+    /* Without this the title's text refuses to wrap and pushes the actions off
+     * the end of the row. */
+    min-width: 0;
+    flex: 1 1 320px;
+  }
+
+  .hos-page-header__title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-2-5);
+    min-width: 0;
+  }
+
+  .hos-page-header__title {
+    font-size: var(--hos-text-2xl);
+    line-height: var(--hos-text-2xl-lh);
+    font-weight: var(--hos-weight-semibold);
+    letter-spacing: var(--hos-tracking-tight);
+    color: var(--hos-fg);
+    text-wrap: balance;
+    min-width: 0;
+  }
+
+  .hos-page-header__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-1-5);
+    flex: none;
+  }
+
+  .hos-page-header__description {
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    color: var(--hos-fg-muted);
+    /* Long-form description stays readable rather than running the full width
+     * of a wide screen. */
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+
+  .hos-page-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-2);
+    flex: none;
+    /* Actions come last in the DOM for reading order but should sit at the top
+     * of the row visually, level with the title. */
+    align-self: flex-start;
+  }
+
+  .hos-page-header__footer {
+    margin-block-start: var(--hos-space-1);
+    min-width: 0;
+  }
+
+  .hos-page-header[data-sticky] .hos-page-header__footer {
+    margin-block-end: calc(var(--hos-space-4) * -1);
+  }
+}
+
+
+/* components/separator/separator.css */
+@layer hosanna.components {
+  .hos-separator {
+    flex: none;
+    background-color: var(--hos-border);
+  }
+
+  .hos-separator[data-orientation="horizontal"] {
+    width: 100%;
+    height: 1px;
+  }
+
+  .hos-separator[data-orientation="vertical"] {
+    width: 1px;
+    /* Fills the height of a flex row without needing an explicit height. */
+    align-self: stretch;
+    min-height: 1em;
+  }
+
+  /* A labelled separator becomes a flex row whose two ::before/::after rules
+   * absorb the leftover space, so the label sits centred with a line either
+   * side and no fixed widths anywhere. */
+  .hos-separator[data-labelled] {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-3);
+    background-color: transparent;
+    height: auto;
+  }
+
+  .hos-separator[data-labelled]::before,
+  .hos-separator[data-labelled]::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background-color: var(--hos-border);
+  }
+
+  .hos-separator__label {
+    flex: none;
+    font-size: var(--hos-text-xs);
+    font-weight: var(--hos-weight-medium);
+    letter-spacing: var(--hos-tracking-wide);
+    text-transform: uppercase;
+    color: var(--hos-fg-subtle);
+    white-space: nowrap;
+  }
+}
+
+
+/* components/stack/stack.css */
+@layer hosanna.components {
+  .hos-stack {
+    display: flex;
+    gap: var(--hos-stack-gap, var(--hos-space-2));
+    align-items: var(--hos-stack-align, stretch);
+    justify-content: var(--hos-stack-justify, flex-start);
+    /* Flex children refuse to shrink below their content width by default,
+     * which is what makes long text blow a row layout out sideways. */
+    min-width: 0;
+  }
+
+  .hos-stack[data-direction="row"] {
+    flex-direction: row;
+  }
+
+  .hos-stack[data-direction="column"] {
+    flex-direction: column;
+  }
+
+  .hos-stack[data-wrap] {
+    flex-wrap: wrap;
+  }
+
+  .hos-stack[data-grow] {
+    flex: 1 1 auto;
+  }
+}
+
+
+/* components/tabs/tabs.css */
+@layer hosanna.components {
+  .hos-tabs {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .hos-tabs[data-orientation="vertical"] {
+    flex-direction: row;
+    gap: var(--hos-space-4);
+  }
+
+  .hos-tabs__list {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+    min-width: 0;
+    /* A long tab set scrolls rather than wrapping — a wrapped tablist reads as
+     * two separate rows of navigation. */
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .hos-tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hos-tabs__list[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: stretch;
+    overflow-x: visible;
+  }
+
+  .hos-tabs__list[data-variant="line"] {
+    border-bottom: var(--hos-border-width) solid var(--hos-border);
+    gap: var(--hos-space-4);
+  }
+
+  .hos-tabs__list[data-variant="line"][data-orientation="vertical"] {
+    border-bottom: none;
+    border-inline-end: var(--hos-border-width) solid var(--hos-border);
+    gap: 0;
+  }
+
+  .hos-tabs__list[data-variant="solid"] {
+    padding: var(--hos-space-1);
+    background-color: var(--hos-bg-sunken);
+    border-radius: var(--hos-radius-md);
+  }
+
+  .hos-tabs__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hos-space-1-5);
+    flex: none;
+
+    height: var(--hos-control-h-md);
+    padding-inline: var(--hos-space-1);
+
+    font-size: var(--hos-text-base);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg-muted);
+    white-space: nowrap;
+    cursor: pointer;
+
+    transition: color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-tabs__tab:hover:not([data-disabled]) {
+    color: var(--hos-fg);
+  }
+
+  .hos-tabs__tab[data-selected] {
+    color: var(--hos-fg);
+  }
+
+  .hos-tabs__tab[data-disabled] {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+
+  .hos-tabs__tab:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: -2px;
+    border-radius: var(--hos-radius-sm);
+  }
+
+  /* The active indicator is a pseudo-element sitting on the list's border, so
+   * it overlaps the 1px rule exactly instead of stacking a second line on it. */
+  .hos-tabs__tab[data-variant="line"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background-color: var(--hos-accent);
+    border-radius: var(--hos-radius-full) var(--hos-radius-full) 0 0;
+
+    scale: 0 1;
+    transition: scale var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-tabs__tab[data-variant="line"][data-selected]::after {
+    scale: 1 1;
+  }
+
+  .hos-tabs__list[data-orientation="vertical"] .hos-tabs__tab[data-variant="line"] {
+    justify-content: flex-start;
+    padding-inline: var(--hos-space-3);
+  }
+
+  .hos-tabs__list[data-orientation="vertical"]
+    .hos-tabs__tab[data-variant="line"]::after {
+    inset-inline: auto -1px;
+    inset-block: 0;
+    width: 2px;
+    height: auto;
+    scale: 1 0;
+    border-radius: var(--hos-radius-full) 0 0 var(--hos-radius-full);
+  }
+
+  .hos-tabs__list[data-orientation="vertical"]
+    .hos-tabs__tab[data-variant="line"][data-selected]::after {
+    scale: 1 1;
+  }
+
+  .hos-tabs__tab[data-variant="solid"] {
+    height: calc(var(--hos-control-h-md) - var(--hos-space-1) * 2);
+    padding-inline: var(--hos-space-3);
+    border-radius: var(--hos-radius-sm);
+    transition:
+      color var(--hos-dur-fast) var(--hos-ease-out),
+      background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-tabs__tab[data-variant="solid"][data-selected] {
+    background-color: var(--hos-surface);
+    box-shadow: var(--hos-shadow-sm);
+  }
+
+  .hos-tabs__tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding-inline: var(--hos-space-1);
+
+    font-size: var(--hos-text-2xs);
+    font-variant-numeric: tabular-nums;
+
+    background-color: var(--hos-surface-active);
+    color: var(--hos-fg-muted);
+    border-radius: var(--hos-radius-full);
+  }
+
+  .hos-tabs__tab[data-selected] .hos-tabs__tab-badge {
+    background-color: var(--hos-accent-subtle);
+    color: var(--hos-accent-fg);
+  }
+
+  .hos-tabs__panel {
+    padding-block-start: var(--hos-space-4);
+    min-width: 0;
+    outline: none;
+  }
+
+  .hos-tabs__panel:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+    border-radius: var(--hos-radius-sm);
+  }
+
+  .hos-tabs[data-orientation="vertical"] .hos-tabs__panel {
+    padding-block-start: 0;
+    flex: 1 1 auto;
+  }
+}
+
+
+/* components/toolbar/toolbar.css */
+@layer hosanna.components {
+  .hos-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+    min-width: 0;
+  }
+
+  .hos-toolbar[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hos-toolbar[data-variant="bordered"] {
+    padding: var(--hos-space-1);
+    background-color: var(--hos-surface);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+  }
+
+  .hos-toolbar__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--hos-space-1-5);
+    flex: none;
+
+    height: var(--hos-control-h-sm);
+    min-width: var(--hos-control-h-sm);
+    padding-inline: var(--hos-space-2);
+
+    font-size: var(--hos-text-sm);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg-muted);
+    border-radius: var(--hos-radius-sm);
+    cursor: pointer;
+
+    transition:
+      background-color var(--hos-dur-fast) var(--hos-ease-out),
+      color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-toolbar__button > svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .hos-toolbar__button:hover:not([data-disabled]) {
+    background-color: var(--hos-surface-hover);
+    color: var(--hos-fg);
+  }
+
+  .hos-toolbar__button:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: -1px;
+  }
+
+  .hos-toolbar__button[data-pressed] {
+    background-color: var(--hos-accent-subtle);
+    color: var(--hos-accent-fg);
+  }
+
+  .hos-toolbar__button[data-disabled] {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+
+  .hos-toolbar__separator {
+    flex: none;
+    width: 1px;
+    align-self: stretch;
+    margin-inline: var(--hos-space-1);
+    background-color: var(--hos-border);
+  }
+
+  .hos-toolbar[data-orientation="vertical"] .hos-toolbar__separator {
+    width: auto;
+    height: 1px;
+    margin-inline: 0;
+    margin-block: var(--hos-space-1);
+  }
+
+  .hos-toolbar__spacer {
+    flex: 1 1 auto;
+  }
+}
+
+
+
+/* data display & states */
+/* components/avatar/avatar.css */
+@layer hosanna.components {
+  .hos-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+
+    width: var(--hos-avatar-size, 32px);
+    height: var(--hos-avatar-size, 32px);
+
+    background-color: var(--hos-surface-raised);
+    color: var(--hos-fg-muted);
+    border-radius: var(--hos-radius-full);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .hos-avatar[data-size="xs"] {
+    --hos-avatar-size: 20px;
+    font-size: var(--hos-text-2xs);
+  }
+  .hos-avatar[data-size="sm"] {
+    --hos-avatar-size: 24px;
+    font-size: var(--hos-text-2xs);
+  }
+  .hos-avatar[data-size="md"] {
+    --hos-avatar-size: 32px;
+    font-size: var(--hos-text-xs);
+  }
+  .hos-avatar[data-size="lg"] {
+    --hos-avatar-size: 40px;
+    font-size: var(--hos-text-sm);
+  }
+  .hos-avatar[data-size="xl"] {
+    --hos-avatar-size: 56px;
+    font-size: var(--hos-text-md);
+  }
+
+  .hos-avatar[data-shape="square"] {
+    border-radius: var(--hos-radius-md);
+  }
+
+  .hos-avatar__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hos-avatar__fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    font-weight: var(--hos-weight-medium);
+    letter-spacing: var(--hos-tracking-wide);
+    /* Initials read better very slightly indented from centre when letter
+     * spacing is applied to the last glyph too. */
+    text-indent: 0.02em;
+  }
+
+  .hos-avatar__icon {
+    width: 60%;
+    height: 60%;
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-avatar__status {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    width: 30%;
+    height: 30%;
+    min-width: 7px;
+    min-height: 7px;
+
+    border-radius: var(--hos-radius-full);
+    /* Ring in the page background so the dot stays readable against any
+     * avatar image behind it. */
+    box-shadow: 0 0 0 2px var(--hos-bg);
+  }
+
+  .hos-avatar__status[data-status="online"] {
+    background-color: var(--hos-success);
+  }
+  .hos-avatar__status[data-status="offline"] {
+    background-color: var(--hos-fg-subtle);
+  }
+  .hos-avatar__status[data-status="busy"] {
+    background-color: var(--hos-danger);
+  }
+  .hos-avatar__status[data-status="away"] {
+    background-color: var(--hos-warning);
+  }
+
+  /* --- group --------------------------------------------------------------- */
+
+  .hos-avatar-group {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Each avatar overlaps the previous one and carries a ring in the page
+   * colour, which is what separates them visually while they overlap. */
+  .hos-avatar-group__item + .hos-avatar-group__item {
+    margin-inline-start: -8px;
+  }
+
+  .hos-avatar-group[data-size="xs"] .hos-avatar-group__item + .hos-avatar-group__item,
+  .hos-avatar-group[data-size="sm"] .hos-avatar-group__item + .hos-avatar-group__item {
+    margin-inline-start: -6px;
+  }
+
+  .hos-avatar-group[data-size="xl"] .hos-avatar-group__item + .hos-avatar-group__item {
+    margin-inline-start: -12px;
+  }
+
+  .hos-avatar-group__item .hos-avatar {
+    box-shadow: 0 0 0 2px var(--hos-bg);
+  }
+
+  /* Later siblings sit on top by default; reversing it means the first avatar
+   * overlaps the second, which reads as a queue rather than a pile. */
+  .hos-avatar-group__item {
+    position: relative;
+  }
+
+  .hos-avatar-group__item:nth-child(1) {
+    z-index: 5;
+  }
+  .hos-avatar-group__item:nth-child(2) {
+    z-index: 4;
+  }
+  .hos-avatar-group__item:nth-child(3) {
+    z-index: 3;
+  }
+  .hos-avatar-group__item:nth-child(4) {
+    z-index: 2;
+  }
+  .hos-avatar-group__item:nth-child(n + 5) {
+    z-index: 1;
+  }
+}
+
+
+/* components/badge/badge.css */
+@layer hosanna.components {
+  .hos-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+    flex: none;
+
+    height: 20px;
+    padding-inline: var(--hos-space-1-5);
+
+    font-size: var(--hos-text-xs);
+    line-height: 1;
+    font-weight: var(--hos-weight-medium);
+    white-space: nowrap;
+
+    border: var(--hos-border-width) solid transparent;
+    border-radius: var(--hos-radius-sm);
+
+    /* Set per tone below, then read by every part of the badge — one
+     * declaration point instead of three rules per tone per variant. */
+    --hos-badge-fg: var(--hos-fg-muted);
+    --hos-badge-bg: var(--hos-surface-active);
+    --hos-badge-solid: var(--hos-fg-subtle);
+    --hos-badge-on-solid: var(--hos-bg);
+  }
+
+  .hos-badge[data-size="sm"] {
+    height: 17px;
+    font-size: var(--hos-text-2xs);
+    padding-inline: var(--hos-space-1);
+  }
+
+  .hos-badge[data-tone="accent"] {
+    --hos-badge-fg: var(--hos-accent-fg);
+    --hos-badge-bg: var(--hos-accent-subtle);
+    --hos-badge-solid: var(--hos-accent);
+    --hos-badge-on-solid: var(--hos-fg-on-accent);
+  }
+
+  .hos-badge[data-tone="success"] {
+    --hos-badge-fg: var(--hos-success-fg);
+    --hos-badge-bg: var(--hos-success-subtle);
+    --hos-badge-solid: var(--hos-success);
+    --hos-badge-on-solid: var(--hos-success-on);
+  }
+
+  .hos-badge[data-tone="warning"] {
+    --hos-badge-fg: var(--hos-warning-fg);
+    --hos-badge-bg: var(--hos-warning-subtle);
+    --hos-badge-solid: var(--hos-warning);
+    --hos-badge-on-solid: var(--hos-warning-on);
+  }
+
+  .hos-badge[data-tone="danger"] {
+    --hos-badge-fg: var(--hos-danger-fg);
+    --hos-badge-bg: var(--hos-danger-subtle);
+    --hos-badge-solid: var(--hos-danger);
+    --hos-badge-on-solid: var(--hos-danger-on);
+  }
+
+  .hos-badge[data-tone="info"] {
+    --hos-badge-fg: var(--hos-info-fg);
+    --hos-badge-bg: var(--hos-info-subtle);
+    --hos-badge-solid: var(--hos-info);
+    --hos-badge-on-solid: var(--hos-info-on);
+  }
+
+  .hos-badge[data-variant="subtle"] {
+    background-color: var(--hos-badge-bg);
+    color: var(--hos-badge-fg);
+  }
+
+  .hos-badge[data-variant="solid"] {
+    background-color: var(--hos-badge-solid);
+    color: var(--hos-badge-on-solid);
+  }
+
+  .hos-badge[data-variant="outline"] {
+    border-color: var(--hos-badge-fg);
+    color: var(--hos-badge-fg);
+    background-color: transparent;
+  }
+
+  .hos-badge__dot {
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: var(--hos-radius-full);
+    background-color: var(--hos-badge-solid);
+  }
+
+  .hos-badge[data-variant="solid"] .hos-badge__dot {
+    background-color: currentColor;
+  }
+
+  .hos-badge__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hos-badge__remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex: none;
+    /* Pull into the badge's own padding so the hit area reaches the edge. */
+    margin-inline-end: -2px;
+
+    border-radius: var(--hos-radius-xs);
+    color: inherit;
+    opacity: 0.65;
+    cursor: pointer;
+
+    transition: opacity var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-badge__remove:hover {
+    opacity: 1;
+    background-color: var(--hos-surface-active);
+  }
+
+  .hos-badge__remove:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: 1px;
+    opacity: 1;
+  }
+
+  .hos-badge__remove > svg {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+
+/* components/empty-state/empty-state.css */
+@layer hosanna.components {
+  .hos-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--hos-space-4);
+
+    padding: var(--hos-space-12) var(--hos-space-6);
+    text-align: center;
+  }
+
+  .hos-empty-state[data-size="sm"] {
+    padding: var(--hos-space-6) var(--hos-space-4);
+    gap: var(--hos-space-3);
+  }
+
+  .hos-empty-state__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+
+    color: var(--hos-fg-subtle);
+    background-color: var(--hos-surface-raised);
+    border-radius: var(--hos-radius-full);
+  }
+
+  .hos-empty-state__icon > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hos-empty-state[data-size="sm"] .hos-empty-state__icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hos-empty-state__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1);
+    /* Centre-aligned prose becomes hard to read past a couple of lines. */
+    max-width: 46ch;
+  }
+
+  .hos-empty-state__title {
+    font-size: var(--hos-text-md);
+    line-height: var(--hos-text-md-lh);
+    font-weight: var(--hos-weight-semibold);
+    color: var(--hos-fg);
+    text-wrap: balance;
+  }
+
+  .hos-empty-state[data-size="sm"] .hos-empty-state__title {
+    font-size: var(--hos-text-base);
+  }
+
+  .hos-empty-state__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+    text-wrap: pretty;
+  }
+
+  .hos-empty-state__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-2);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hos-error-state .hos-empty-state__icon {
+    color: var(--hos-danger-fg);
+    background-color: var(--hos-danger-subtle);
+  }
+
+  .hos-error-state__detail {
+    display: inline-block;
+    padding: var(--hos-space-1) var(--hos-space-2);
+
+    font-family: var(--hos-font-mono);
+    font-size: var(--hos-text-xs);
+    color: var(--hos-fg-subtle);
+
+    background-color: var(--hos-bg-sunken);
+    border: var(--hos-border-width) solid var(--hos-border-subtle);
+    border-radius: var(--hos-radius-sm);
+    /* Long ids must wrap rather than widening the whole empty state. */
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+}
+
+
+/* components/pagination/pagination.css */
+@layer hosanna.components {
+  .hos-pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+  }
+
+  .hos-pagination__list {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .hos-pagination__page,
+  .hos-pagination__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: var(--hos-control-h-sm);
+    height: var(--hos-control-h-sm);
+    padding-inline: var(--hos-space-1-5);
+
+    font-size: var(--hos-text-sm);
+    /* Tabular figures stop the buttons resizing as the digits change. */
+    font-variant-numeric: tabular-nums;
+    color: var(--hos-fg-muted);
+
+    border: var(--hos-border-width) solid transparent;
+    border-radius: var(--hos-radius-sm);
+    cursor: pointer;
+
+    transition:
+      background-color var(--hos-dur-fast) var(--hos-ease-out),
+      color var(--hos-dur-fast) var(--hos-ease-out),
+      border-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-pagination__page:hover:not(:disabled),
+  .hos-pagination__arrow:hover:not(:disabled) {
+    background-color: var(--hos-surface-hover);
+    color: var(--hos-fg);
+  }
+
+  .hos-pagination__page:focus-visible,
+  .hos-pagination__arrow:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-pagination__page[data-current] {
+    background-color: var(--hos-accent-subtle);
+    border-color: var(--hos-border-accent);
+    color: var(--hos-accent-fg);
+    font-weight: var(--hos-weight-medium);
+  }
+
+  .hos-pagination__page:disabled,
+  .hos-pagination__arrow:disabled {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .hos-pagination__arrow > svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .hos-pagination__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--hos-control-h-sm);
+    height: var(--hos-control-h-sm);
+    color: var(--hos-fg-subtle);
+    user-select: none;
+  }
+
+  .hos-pagination__summary {
+    padding-inline: var(--hos-space-2);
+    font-size: var(--hos-text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--hos-fg-muted);
+    white-space: nowrap;
+  }
+}
+
+
+/* components/skeleton/skeleton.css */
+@layer hosanna.components {
+  .hos-skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--hos-skeleton);
+    border-radius: var(--hos-radius-sm);
+  }
+
+  .hos-skeleton[data-variant="text"] {
+    width: 100%;
+    /* Matches the body line box, so a skeleton swapped for real text does not
+     * change the height of the row it sits in. */
+    height: var(--hos-text-base-lh);
+    border-radius: var(--hos-radius-xs);
+  }
+
+  .hos-skeleton[data-variant="circle"] {
+    border-radius: var(--hos-radius-full);
+    aspect-ratio: 1;
+  }
+
+  .hos-skeleton[data-variant="rect"] {
+    width: 100%;
+    height: 100px;
+    border-radius: var(--hos-radius-md);
+  }
+
+  .hos-skeleton__lines {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1-5);
+  }
+
+  /* A sweep across a transparent gradient rather than a pulse of the whole
+   * block: it animates only `translate` on a pseudo-element, so a page full of
+   * skeletons costs one composited layer each instead of repainting every box. */
+  .hos-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--hos-skeleton-shine),
+      transparent
+    );
+    translate: -100% 0;
+    animation: hos-skeleton-sweep 1.6s var(--hos-ease-in-out) infinite;
+  }
+
+  .hos-skeleton[data-still]::after {
+    display: none;
+  }
+
+  @keyframes hos-skeleton-sweep {
+    to {
+      translate: 100% 0;
+    }
+  }
+
+  /* A sweep crossing dozens of blocks is exactly the kind of repetitive motion
+   * that triggers vestibular symptoms. Fall back to a slow, gentle opacity
+   * change on the block itself. */
+  @media (prefers-reduced-motion: reduce) {
+    .hos-skeleton::after {
+      display: none;
+    }
+
+    .hos-skeleton {
+      animation: hos-skeleton-fade 2.4s ease-in-out infinite;
+    }
+
+    @keyframes hos-skeleton-fade {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.55;
+      }
+    }
+  }
+}
+
+
+/* components/spinner/spinner.css */
+@layer hosanna.components {
+  .hos-spinner {
+    display: inline-block;
+    flex: none;
+    color: currentColor;
+    vertical-align: middle;
+  }
+
+  /* --- ring ---------------------------------------------------------------- */
+
+  .hos-spinner__track {
+    stroke: currentColor;
+    opacity: 0.2;
+  }
+
+  .hos-spinner__indicator {
+    stroke: currentColor;
+    transform-origin: center;
+    /* Two animations at once: one rotates the arc, the other grows and shrinks
+     * it. Combined, the arc appears to accelerate and slow down — the same
+     * effect as the Material indeterminate spinner, with no JS frame loop. */
+    animation:
+      hos-spin 1.4s linear infinite,
+      hos-spinner-dash 1.4s ease-in-out infinite;
+  }
+
+  @keyframes hos-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes hos-spinner-dash {
+    0% {
+      stroke-dasharray: 1 57;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 40 57;
+      stroke-dashoffset: -12;
+    }
+    100% {
+      stroke-dasharray: 1 57;
+      stroke-dashoffset: -56;
+    }
+  }
+
+  /* --- dots ---------------------------------------------------------------- */
+
+  .hos-spinner__dot {
+    fill: currentColor;
+    transform-origin: center;
+    animation: hos-spinner-pulse 1s ease-in-out infinite;
+  }
+
+  .hos-spinner__dot:nth-child(2) {
+    animation-delay: 0.16s;
+  }
+
+  .hos-spinner__dot:nth-child(3) {
+    animation-delay: 0.32s;
+  }
+
+  @keyframes hos-spinner-pulse {
+    0%,
+    70%,
+    100% {
+      opacity: 0.25;
+      scale: 0.75;
+    }
+    35% {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  /* --- bars ---------------------------------------------------------------- */
+
+  .hos-spinner__bar {
+    fill: currentColor;
+    transform-origin: center;
+    animation: hos-spinner-stretch 1s ease-in-out infinite;
+  }
+
+  .hos-spinner__bar:nth-child(2) {
+    animation-delay: 0.12s;
+  }
+
+  .hos-spinner__bar:nth-child(3) {
+    animation-delay: 0.24s;
+  }
+
+  @keyframes hos-spinner-stretch {
+    0%,
+    70%,
+    100% {
+      scale: 1 0.6;
+      opacity: 0.4;
+    }
+    35% {
+      scale: 1 1.5;
+      opacity: 1;
+    }
+  }
+
+  /* Motion is the entire content of this component, so it cannot just be
+   * removed. Slow it right down and drop the scaling instead — the busy state
+   * stays legible without anything darting about. */
+  @media (prefers-reduced-motion: reduce) {
+    .hos-spinner__indicator {
+      animation:
+        hos-spin 2.4s linear infinite,
+        hos-spinner-dash 2.4s ease-in-out infinite;
+    }
+
+    .hos-spinner__dot,
+    .hos-spinner__bar {
+      animation-duration: 2s;
+      scale: 1;
+    }
+  }
+}
+
+
+/* components/table/table.css */
+@layer hosanna.components {
+  .hos-table__wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-lg);
+    background-color: var(--hos-surface);
+  }
+
+  .hos-table__wrapper:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-table__wrapper[data-sticky-header] {
+    /* The sticky header needs a scroll container with a bounded height;
+     * consumers set the actual value. */
+    max-height: var(--hos-table-max-height, 480px);
+    overflow-y: auto;
+  }
+
+  .hos-table {
+    width: 100%;
+    border-collapse: separate;
+    /* `separate` rather than `collapse`: collapsed borders do not stay put
+     * under a position: sticky header, which is what causes the header's rule
+     * to vanish while scrolling. */
+    border-spacing: 0;
+    font-size: var(--hos-text-base);
+    text-align: start;
+  }
+
+  .hos-table__caption {
+    padding: var(--hos-space-2-5) var(--hos-space-3);
+    font-size: var(--hos-text-sm);
+    color: var(--hos-fg-muted);
+    text-align: start;
+    caption-side: top;
+  }
+
+  .hos-table__header-cell {
+    position: relative;
+    padding: var(--hos-space-2) var(--hos-space-3);
+
+    font-size: var(--hos-text-xs);
+    font-weight: var(--hos-weight-medium);
+    letter-spacing: var(--hos-tracking-wide);
+    text-transform: uppercase;
+    color: var(--hos-fg-subtle);
+    white-space: nowrap;
+
+    background-color: var(--hos-bg-sunken);
+    border-bottom: var(--hos-border-width) solid var(--hos-border);
+  }
+
+  .hos-table__wrapper[data-sticky-header] .hos-table__header-cell {
+    position: sticky;
+    top: 0;
+    z-index: var(--hos-z-raised);
+  }
+
+  .hos-table__header-cell[data-align="start"] {
+    text-align: start;
+  }
+  .hos-table__header-cell[data-align="center"] {
+    text-align: center;
+  }
+  .hos-table__header-cell[data-align="end"] {
+    text-align: end;
+  }
+
+  .hos-table__sort {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hos-space-1);
+
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
+    cursor: pointer;
+    border-radius: var(--hos-radius-xs);
+
+    transition: color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-table__sort:hover {
+    color: var(--hos-fg);
+  }
+
+  .hos-table__sort:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: 2px;
+  }
+
+  .hos-table__sort-icon {
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+
+  /* Both chevrons are drawn at all times; the active one is highlighted. This
+   * keeps the header's width identical in every sort state. */
+  .hos-table__sort-up,
+  .hos-table__sort-down {
+    opacity: 0.28;
+    transition: opacity var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-table__sort-icon[data-direction="asc"] .hos-table__sort-up,
+  .hos-table__sort-icon[data-direction="desc"] .hos-table__sort-down {
+    opacity: 1;
+  }
+
+  .hos-table__header-cell[aria-sort="ascending"],
+  .hos-table__header-cell[aria-sort="descending"] {
+    color: var(--hos-fg);
+  }
+
+  .hos-table__cell {
+    padding: var(--hos-row-py) var(--hos-space-3);
+    color: var(--hos-fg);
+    border-bottom: var(--hos-border-width) solid var(--hos-border-subtle);
+    vertical-align: middle;
+  }
+
+  /* `text-overflow` needs a resolved width to work against, and in an
+   * auto-layout table a cell has none. `max-width: 0` gives it one — the
+   * column still sizes normally from the other cells, but this one is now
+   * allowed to clip. Scoped to truncating cells only: applying it to every
+   * cell would distort column widths across the whole table. */
+  .hos-table__cell.hos-truncate {
+    max-width: 0;
+  }
+
+  .hos-table__cell[data-align="start"] {
+    text-align: start;
+  }
+  .hos-table__cell[data-align="center"] {
+    text-align: center;
+  }
+  .hos-table__cell[data-align="end"] {
+    text-align: end;
+  }
+
+  .hos-table__cell[data-numeric],
+  .hos-table__header-cell[data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The last row's rule would double up with the wrapper's border. */
+  .hos-table__body .hos-table__row:last-child .hos-table__cell {
+    border-bottom: none;
+  }
+
+  .hos-table__row[data-interactive] {
+    cursor: pointer;
+    transition: background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-table__row[data-interactive]:hover .hos-table__cell {
+    background-color: var(--hos-surface-hover);
+  }
+
+  .hos-table__row[data-selected] .hos-table__cell {
+    background-color: var(--hos-surface-selected);
+  }
+
+  .hos-table[data-zebra] .hos-table__body .hos-table__row:nth-child(even) .hos-table__cell {
+    background-color: var(--hos-bg-sunken);
+  }
+
+  .hos-table__foot .hos-table__cell {
+    font-weight: var(--hos-weight-medium);
+    background-color: var(--hos-bg-sunken);
+    border-top: var(--hos-border-width) solid var(--hos-border);
+    border-bottom: none;
+  }
+}
+
+
+
+/* overlays & feedback */
+/* components/alert/alert.css */
+@layer hosanna.components {
+  .hos-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--hos-space-2-5);
+
+    padding: var(--hos-space-3);
+    border: var(--hos-border-width) solid transparent;
+    border-radius: var(--hos-radius-md);
+
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+
+    /* Declared once per tone, then read by the icon, border and background —
+     * one place to change rather than three rules per tone. */
+    --hos-alert-fg: var(--hos-info-fg);
+    --hos-alert-bg: var(--hos-info-subtle);
+    --hos-alert-border: var(--hos-info);
+  }
+
+  .hos-alert[data-tone="success"] {
+    --hos-alert-fg: var(--hos-success-fg);
+    --hos-alert-bg: var(--hos-success-subtle);
+    --hos-alert-border: var(--hos-success);
+  }
+
+  .hos-alert[data-tone="warning"] {
+    --hos-alert-fg: var(--hos-warning-fg);
+    --hos-alert-bg: var(--hos-warning-subtle);
+    --hos-alert-border: var(--hos-warning);
+  }
+
+  .hos-alert[data-tone="danger"] {
+    --hos-alert-fg: var(--hos-danger-fg);
+    --hos-alert-bg: var(--hos-danger-subtle);
+    --hos-alert-border: var(--hos-danger);
+  }
+
+  .hos-alert[data-tone="neutral"] {
+    --hos-alert-fg: var(--hos-fg-muted);
+    --hos-alert-bg: var(--hos-bg-sunken);
+    --hos-alert-border: var(--hos-border);
+  }
+
+  .hos-alert[data-variant="subtle"] {
+    background-color: var(--hos-alert-bg);
+    color: var(--hos-fg);
+  }
+
+  .hos-alert[data-variant="outline"] {
+    background-color: var(--hos-surface);
+    border-color: var(--hos-border);
+    color: var(--hos-fg);
+  }
+
+  /* A coloured rule down the leading edge carries the tone even where the
+   * tinted background is too faint to read — and survives forced-colors mode. */
+  .hos-alert[data-variant="outline"] {
+    border-inline-start: 3px solid var(--hos-alert-border);
+  }
+
+  .hos-alert__icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--hos-alert-fg);
+    /* Aligns the icon with the cap height of the first line rather than the
+     * top of its line box. */
+    margin-top: 2px;
+  }
+
+  .hos-alert__icon > svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .hos-alert__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .hos-alert__title {
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg);
+  }
+
+  .hos-alert__body {
+    color: var(--hos-fg-muted);
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    text-wrap: pretty;
+  }
+
+  .hos-alert__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-2);
+    margin-top: var(--hos-space-1);
+  }
+
+  .hos-alert__dismiss {
+    flex: none;
+    margin: -2px calc(var(--hos-space-1) * -1) 0 0;
+  }
+}
+
+
+/* components/dialog/dialog.css */
+@layer hosanna.components {
+  .hos-dialog__layer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--hos-z-dialog);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--hos-space-4);
+    /* On a short viewport the dialog scrolls within the layer rather than
+     * being clipped at the top — the usual failure mode of a centred modal. */
+    overflow-y: auto;
+  }
+
+  .hos-dialog__backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--hos-backdrop);
+    /* No blur: a frosted backdrop costs a full-screen repaint every frame and
+     * makes the text behind it harder to read, not easier to ignore. */
+  }
+
+  .hos-dialog__backdrop[data-state="open"] {
+    animation: hos-fade-in var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-dialog__backdrop[data-state="closed"] {
+    animation: hos-fade-out var(--hos-dur-fast) var(--hos-ease-in);
+  }
+
+  .hos-dialog {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* Own stacking context above the backdrop within the layer. */
+    z-index: 1;
+
+    width: 100%;
+    max-width: var(--hos-dialog-width, 480px);
+    max-height: calc(100dvh - var(--hos-space-8));
+
+    background-color: var(--hos-surface-overlay);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-lg);
+    box-shadow: var(--hos-shadow-lg);
+
+    outline: none;
+  }
+
+  .hos-dialog[data-size="sm"] {
+    --hos-dialog-width: 400px;
+  }
+  .hos-dialog[data-size="md"] {
+    --hos-dialog-width: 520px;
+  }
+  .hos-dialog[data-size="lg"] {
+    --hos-dialog-width: 680px;
+  }
+  .hos-dialog[data-size="xl"] {
+    --hos-dialog-width: 880px;
+  }
+
+  .hos-dialog[data-state="open"] {
+    animation: hos-dialog-in var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-dialog[data-state="closed"] {
+    animation: hos-dialog-out var(--hos-dur-fast) var(--hos-ease-in);
+  }
+
+  .hos-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--hos-space-4);
+    padding: var(--hos-space-4) var(--hos-space-5);
+    flex: none;
+  }
+
+  .hos-dialog__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1);
+    min-width: 0;
+  }
+
+  .hos-dialog__title {
+    font-size: var(--hos-text-lg);
+    line-height: var(--hos-text-lg-lh);
+    font-weight: var(--hos-weight-semibold);
+    letter-spacing: var(--hos-tracking-tight);
+    color: var(--hos-fg);
+    text-wrap: balance;
+  }
+
+  .hos-dialog__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+    text-wrap: pretty;
+  }
+
+  .hos-dialog__close {
+    flex: none;
+    /* Pulled towards the corner so its optical edge lines up with the padding
+     * rather than its (larger) hit area. */
+    margin: calc(var(--hos-space-1) * -1) calc(var(--hos-space-2) * -1) 0 0;
+  }
+
+  .hos-dialog__body {
+    padding: 0 var(--hos-space-5) var(--hos-space-5);
+    /* The body is the only part that scrolls; header and footer stay put. */
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-dialog__header + .hos-dialog__footer {
+    padding-top: 0;
+  }
+
+  .hos-dialog__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--hos-space-2);
+    flex: none;
+
+    padding: var(--hos-space-3) var(--hos-space-5);
+    border-top: var(--hos-border-width) solid var(--hos-border-subtle);
+    background-color: var(--hos-bg-sunken);
+    border-radius: 0 0 calc(var(--hos-radius-lg) - 1px) calc(var(--hos-radius-lg) - 1px);
+  }
+
+  /* On a phone the dialog fills the width and sits against the bottom edge,
+   * where a thumb can actually reach the buttons. */
+  @media (max-width: 480px) {
+    .hos-dialog__layer {
+      align-items: flex-end;
+      padding: 0;
+    }
+
+    .hos-dialog {
+      max-width: none;
+      max-height: 90dvh;
+      border-radius: var(--hos-radius-xl) var(--hos-radius-xl) 0 0;
+      border-bottom: none;
+    }
+
+    .hos-dialog[data-state="open"] {
+      animation: hos-slide-in-bottom var(--hos-dur-base) var(--hos-ease-out);
+    }
+
+    .hos-dialog[data-state="closed"] {
+      animation: hos-slide-out-bottom var(--hos-dur-fast) var(--hos-ease-in);
+    }
+
+    .hos-dialog__footer {
+      border-radius: 0;
+      /* Clear the home indicator on iOS. */
+      padding-bottom: max(var(--hos-space-3), env(safe-area-inset-bottom));
+    }
+  }
+}
+
+
+/* components/drawer/drawer.css */
+@layer hosanna.components {
+  .hos-drawer__layer {
+    position: fixed;
+    inset: 0;
+    z-index: var(--hos-z-dialog);
+    display: flex;
+  }
+
+  /* A non-modal drawer must not swallow clicks meant for the page behind it —
+   * the layer stops catching pointer events and only the panel keeps them. */
+  .hos-drawer__layer:not([data-modal]) {
+    pointer-events: none;
+  }
+
+  .hos-drawer__layer:not([data-modal]) .hos-drawer {
+    pointer-events: auto;
+  }
+
+  .hos-drawer__layer[data-side="right"] {
+    justify-content: flex-end;
+  }
+  .hos-drawer__layer[data-side="left"] {
+    justify-content: flex-start;
+  }
+  .hos-drawer__layer[data-side="top"] {
+    align-items: flex-start;
+  }
+  .hos-drawer__layer[data-side="bottom"] {
+    align-items: flex-end;
+  }
+
+  .hos-drawer__backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--hos-backdrop);
+  }
+
+  .hos-drawer__backdrop[data-state="open"] {
+    animation: hos-fade-in var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-drawer__backdrop[data-state="closed"] {
+    animation: hos-fade-out var(--hos-dur-fast) var(--hos-ease-in);
+  }
+
+  .hos-drawer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--hos-surface-overlay);
+    box-shadow: var(--hos-shadow-lg);
+    outline: none;
+  }
+
+  /* --- horizontal (left / right) ------------------------------------------- */
+
+  .hos-drawer[data-side="left"],
+  .hos-drawer[data-side="right"] {
+    height: 100%;
+    width: 100%;
+    max-width: var(--hos-drawer-size, 420px);
+  }
+
+  .hos-drawer[data-side="right"] {
+    border-inline-start: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-xl) 0 0 var(--hos-radius-xl);
+  }
+
+  .hos-drawer[data-side="left"] {
+    border-inline-end: var(--hos-border-width) solid var(--hos-border);
+    border-radius: 0 var(--hos-radius-xl) var(--hos-radius-xl) 0;
+  }
+
+  .hos-drawer[data-side="left"][data-size="sm"],
+  .hos-drawer[data-side="right"][data-size="sm"] {
+    --hos-drawer-size: 320px;
+  }
+  .hos-drawer[data-side="left"][data-size="md"],
+  .hos-drawer[data-side="right"][data-size="md"] {
+    --hos-drawer-size: 420px;
+  }
+  .hos-drawer[data-side="left"][data-size="lg"],
+  .hos-drawer[data-side="right"][data-size="lg"] {
+    --hos-drawer-size: 620px;
+  }
+  .hos-drawer[data-side="left"][data-size="full"],
+  .hos-drawer[data-side="right"][data-size="full"] {
+    --hos-drawer-size: 100%;
+    border-radius: 0;
+  }
+
+  /* --- vertical (top / bottom) --------------------------------------------- */
+
+  .hos-drawer[data-side="top"],
+  .hos-drawer[data-side="bottom"] {
+    width: 100%;
+    max-height: var(--hos-drawer-size, 45dvh);
+  }
+
+  .hos-drawer[data-side="bottom"] {
+    border-top: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-xl) var(--hos-radius-xl) 0 0;
+  }
+
+  .hos-drawer[data-side="top"] {
+    border-bottom: var(--hos-border-width) solid var(--hos-border);
+    border-radius: 0 0 var(--hos-radius-xl) var(--hos-radius-xl);
+  }
+
+  .hos-drawer[data-side="top"][data-size="sm"],
+  .hos-drawer[data-side="bottom"][data-size="sm"] {
+    --hos-drawer-size: 30dvh;
+  }
+  .hos-drawer[data-side="top"][data-size="lg"],
+  .hos-drawer[data-side="bottom"][data-size="lg"] {
+    --hos-drawer-size: 70dvh;
+  }
+  .hos-drawer[data-side="top"][data-size="full"],
+  .hos-drawer[data-side="bottom"][data-size="full"] {
+    --hos-drawer-size: 100dvh;
+    border-radius: 0;
+  }
+
+  /* --- motion -------------------------------------------------------------- */
+
+  .hos-drawer[data-side="right"][data-state="open"] {
+    animation: hos-slide-in-right var(--hos-dur-base) var(--hos-ease-out);
+  }
+  .hos-drawer[data-side="right"][data-state="closed"] {
+    animation: hos-slide-out-right var(--hos-dur-fast) var(--hos-ease-in);
+  }
+  .hos-drawer[data-side="left"][data-state="open"] {
+    animation: hos-slide-in-left var(--hos-dur-base) var(--hos-ease-out);
+  }
+  .hos-drawer[data-side="left"][data-state="closed"] {
+    animation: hos-slide-out-left var(--hos-dur-fast) var(--hos-ease-in);
+  }
+  .hos-drawer[data-side="bottom"][data-state="open"] {
+    animation: hos-slide-in-bottom var(--hos-dur-base) var(--hos-ease-out);
+  }
+  .hos-drawer[data-side="bottom"][data-state="closed"] {
+    animation: hos-slide-out-bottom var(--hos-dur-fast) var(--hos-ease-in);
+  }
+  .hos-drawer[data-side="top"][data-state="open"] {
+    animation: hos-slide-in-top var(--hos-dur-base) var(--hos-ease-out);
+  }
+  .hos-drawer[data-side="top"][data-state="closed"] {
+    animation: hos-slide-out-top var(--hos-dur-fast) var(--hos-ease-in);
+  }
+
+  /* --- content ------------------------------------------------------------- */
+
+  .hos-drawer__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--hos-space-4);
+    flex: none;
+
+    padding: var(--hos-space-4) var(--hos-space-5);
+    border-bottom: var(--hos-border-width) solid var(--hos-border-subtle);
+  }
+
+  .hos-drawer__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-1);
+    min-width: 0;
+  }
+
+  .hos-drawer__title {
+    font-size: var(--hos-text-lg);
+    line-height: var(--hos-text-lg-lh);
+    font-weight: var(--hos-weight-semibold);
+    letter-spacing: var(--hos-tracking-tight);
+    color: var(--hos-fg);
+  }
+
+  .hos-drawer__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+  }
+
+  .hos-drawer__close {
+    flex: none;
+    margin: calc(var(--hos-space-1) * -1) calc(var(--hos-space-2) * -1) 0 0;
+  }
+
+  .hos-drawer__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding: var(--hos-space-5);
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+  }
+
+  .hos-drawer__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--hos-space-2);
+    flex: none;
+
+    padding: var(--hos-space-3) var(--hos-space-5);
+    padding-bottom: max(var(--hos-space-3), env(safe-area-inset-bottom));
+    border-top: var(--hos-border-width) solid var(--hos-border-subtle);
+    background-color: var(--hos-bg-sunken);
+  }
+}
+
+
+/* components/menu/menu.css */
+@layer hosanna.components {
+  .hos-menu {
+    position: fixed;
+    z-index: var(--hos-z-popover);
+
+    min-width: 180px;
+    max-width: min(92vw, 320px);
+    max-height: var(--hos-available-height, 400px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding: var(--hos-space-1);
+
+    background-color: var(--hos-surface-overlay);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    box-shadow: var(--hos-shadow-lg);
+
+    outline: none;
+    transform-origin: var(--hos-transform-origin, center top);
+  }
+
+  .hos-menu[data-state="open"] {
+    animation: hos-pop-in var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-menu[data-state="closed"] {
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+  }
+
+  .hos-menu__item {
+    display: flex;
+    align-items: center;
+    gap: var(--hos-space-2);
+
+    padding: var(--hos-space-1-5) var(--hos-space-2);
+    border-radius: var(--hos-radius-sm);
+
+    font-size: var(--hos-text-base);
+    color: var(--hos-fg);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+
+    transition: background-color var(--hos-dur-instant) var(--hos-ease-out);
+  }
+
+  /* Hover and keyboard focus produce one shared highlight — there is only ever
+   * a single active item, however the user got to it. */
+  .hos-menu__item:hover:not([data-disabled]),
+  .hos-menu__item:focus,
+  .hos-menu__item:focus-visible {
+    background-color: var(--hos-surface-hover);
+  }
+
+  .hos-menu__item[data-destructive] {
+    color: var(--hos-danger-fg);
+  }
+
+  .hos-menu__item[data-destructive]:hover:not([data-disabled]),
+  .hos-menu__item[data-destructive]:focus {
+    background-color: var(--hos-danger-subtle);
+  }
+
+  .hos-menu__item[data-disabled] {
+    color: var(--hos-fg-subtle);
+    cursor: not-allowed;
+  }
+
+  .hos-menu__item-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-menu__item-icon > svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .hos-menu__item[data-destructive] .hos-menu__item-icon {
+    color: currentColor;
+  }
+
+  .hos-menu__item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hos-menu__item-shortcut {
+    flex: none;
+    margin-inline-start: var(--hos-space-4);
+    color: var(--hos-fg-subtle);
+    font-size: var(--hos-text-xs);
+  }
+
+  /* The tick keeps its slot at all times so toggling one item does not shift
+   * the labels of every other row in the menu. */
+  .hos-menu__check {
+    opacity: 0;
+    color: var(--hos-accent-fg);
+  }
+
+  .hos-menu__check[data-checked] {
+    opacity: 1;
+  }
+
+  .hos-menu__label {
+    padding: var(--hos-space-1-5) var(--hos-space-2) var(--hos-space-1);
+    font-size: var(--hos-text-xs);
+    font-weight: var(--hos-weight-medium);
+    letter-spacing: var(--hos-tracking-wide);
+    text-transform: uppercase;
+    color: var(--hos-fg-subtle);
+  }
+
+  .hos-menu__separator {
+    height: 1px;
+    /* Negative inline margin makes the rule span the menu's full width,
+     * through its padding, rather than floating inside it. */
+    margin: var(--hos-space-1) calc(var(--hos-space-1) * -1);
+    background-color: var(--hos-border-subtle);
+  }
+}
+
+
+/* components/popover/popover.css */
+@layer hosanna.components {
+  .hos-popover {
+    z-index: var(--hos-z-popover);
+    /* Placement is written as a transform by the positioner; `position: fixed`
+     * is what makes those viewport coordinates correct and keeps the panel free
+     * of any ancestor's overflow or transform. */
+    position: fixed;
+
+    min-width: 180px;
+    max-width: min(92vw, 360px);
+    max-height: var(--hos-available-height, none);
+    overflow-y: auto;
+
+    padding: var(--hos-space-3);
+
+    background-color: var(--hos-surface-overlay);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    box-shadow: var(--hos-shadow-lg);
+    color: var(--hos-fg);
+    font-size: var(--hos-text-base);
+
+    outline: none;
+    transform-origin: var(--hos-transform-origin, center);
+  }
+
+  .hos-popover[data-state="open"] {
+    animation: hos-pop-in var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-popover[data-state="closed"] {
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+  }
+
+  /* A rotated square peeking out from under the panel. Two of its four borders
+   * are drawn so it matches the panel's edge on whichever side it sits. */
+  .hos-popover__arrow {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    rotate: 45deg;
+
+    background-color: var(--hos-surface-overlay);
+    border: var(--hos-border-width) solid var(--hos-border);
+  }
+
+  .hos-popover[data-side="bottom"] .hos-popover__arrow {
+    top: -5px;
+    left: var(--hos-arrow-x, 50%);
+    margin-left: -4px;
+    border-block-end: none;
+    border-inline-end: none;
+  }
+
+  .hos-popover[data-side="top"] .hos-popover__arrow {
+    bottom: -5px;
+    left: var(--hos-arrow-x, 50%);
+    margin-left: -4px;
+    border-block-start: none;
+    border-inline-start: none;
+  }
+
+  .hos-popover[data-side="right"] .hos-popover__arrow {
+    left: -5px;
+    top: var(--hos-arrow-y, 50%);
+    margin-top: -4px;
+    border-block-start: none;
+    border-inline-end: none;
+  }
+
+  .hos-popover[data-side="left"] .hos-popover__arrow {
+    right: -5px;
+    top: var(--hos-arrow-y, 50%);
+    margin-top: -4px;
+    border-block-end: none;
+    border-inline-start: none;
+  }
+}
+
+
+/* components/toast/toast.css */
+@layer hosanna.components {
+  .hos-toast__viewport {
+    position: fixed;
+    z-index: var(--hos-z-toast);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-2);
+
+    width: min(400px, calc(100vw - var(--hos-space-8)));
+    padding: var(--hos-space-4);
+
+    /* The viewport spans a corner but must not block the page underneath it —
+     * only the toasts themselves take pointer input. */
+    pointer-events: none;
+  }
+
+  .hos-toast__live {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-2);
+  }
+
+  .hos-toast__viewport[data-position^="top"] {
+    top: 0;
+  }
+
+  .hos-toast__viewport[data-position^="bottom"] {
+    bottom: 0;
+    /* Newest nearest the edge the user is looking at. */
+    flex-direction: column-reverse;
+  }
+
+  .hos-toast__viewport[data-position^="bottom"] .hos-toast__live {
+    flex-direction: column-reverse;
+  }
+
+  .hos-toast__viewport[data-position$="left"] {
+    left: 0;
+    align-items: flex-start;
+  }
+
+  .hos-toast__viewport[data-position$="right"] {
+    right: 0;
+    align-items: flex-end;
+  }
+
+  .hos-toast__viewport[data-position$="center"] {
+    left: 50%;
+    translate: -50% 0;
+    align-items: center;
+  }
+
+  .hos-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--hos-space-2-5);
+    width: 100%;
+
+    padding: var(--hos-space-3);
+
+    background-color: var(--hos-surface-overlay);
+    border: var(--hos-border-width) solid var(--hos-border);
+    border-radius: var(--hos-radius-md);
+    box-shadow: var(--hos-shadow-lg);
+
+    pointer-events: auto;
+  }
+
+  .hos-toast[data-state="open"] {
+    animation: hos-toast-in var(--hos-dur-base) var(--hos-ease-out);
+  }
+
+  .hos-toast[data-state="closed"] {
+    animation: hos-toast-out var(--hos-dur-fast) var(--hos-ease-in);
+  }
+
+  /* Toasts at the top of the screen should arrive from above, not below. */
+  .hos-toast[data-side="top"][data-state="open"] {
+    animation-name: hos-toast-in-top;
+  }
+
+  @keyframes hos-toast-in-top {
+    from {
+      opacity: 0;
+      translate: 0 -12px;
+      scale: 0.98;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+
+  .hos-toast__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hos-space-0-5);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .hos-toast__title {
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg);
+  }
+
+  .hos-toast__description {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+    color: var(--hos-fg-muted);
+    text-wrap: pretty;
+  }
+
+  .hos-toast__action {
+    flex: none;
+    align-self: center;
+
+    height: var(--hos-control-h-sm);
+    padding-inline: var(--hos-space-2);
+
+    font-size: var(--hos-text-sm);
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-accent-fg);
+
+    border-radius: var(--hos-radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition: background-color var(--hos-dur-fast) var(--hos-ease-out);
+  }
+
+  .hos-toast__action:hover {
+    background-color: var(--hos-accent-subtle);
+  }
+
+  .hos-toast__action:focus-visible {
+    outline: var(--hos-ring-width) solid var(--hos-ring);
+    outline-offset: var(--hos-ring-offset);
+  }
+
+  .hos-toast__close {
+    flex: none;
+    margin: -2px -4px 0 0;
+  }
+
+  @media (max-width: 480px) {
+    .hos-toast__viewport {
+      width: 100%;
+      padding: var(--hos-space-2);
+      padding-bottom: max(var(--hos-space-2), env(safe-area-inset-bottom));
+      align-items: stretch;
+    }
+
+    .hos-toast__viewport[data-position$="center"] {
+      left: 0;
+      translate: none;
+    }
+  }
+}
+
+
+/* components/tooltip/tooltip.css */
+@layer hosanna.components {
+  .hos-tooltip {
+    position: fixed;
+    z-index: var(--hos-z-tooltip);
+
+    max-width: 260px;
+    padding: var(--hos-space-1-5) var(--hos-space-2);
+
+    /* Inverted against the page: a tooltip is a temporary overlay, and making
+     * it the same colour as every other panel makes it read as one. */
+    background-color: var(--hos-fg);
+    color: var(--hos-bg);
+    border-radius: var(--hos-radius-sm);
+    box-shadow: var(--hos-shadow-md);
+
+    font-size: var(--hos-text-xs);
+    line-height: var(--hos-text-xs-lh);
+    font-weight: var(--hos-weight-medium);
+    text-wrap: pretty;
+
+    /* Never intercepts the pointer — a tooltip that can be hovered blocks the
+     * thing it is describing. */
+    pointer-events: none;
+    transform-origin: var(--hos-transform-origin, center);
+  }
+
+  .hos-tooltip[data-state="open"] {
+    animation: hos-pop-in var(--hos-dur-instant) var(--hos-ease-out);
+  }
+
+  .hos-tooltip[data-state="closed"] {
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+  }
+
+  .hos-tooltip__arrow {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    rotate: 45deg;
+    background-color: inherit;
+  }
+
+  .hos-tooltip[data-side="top"] .hos-tooltip__arrow {
+    bottom: -3px;
+    left: var(--hos-arrow-x, 50%);
+    margin-left: -3.5px;
+  }
+
+  .hos-tooltip[data-side="bottom"] .hos-tooltip__arrow {
+    top: -3px;
+    left: var(--hos-arrow-x, 50%);
+    margin-left: -3.5px;
+  }
+
+  .hos-tooltip[data-side="left"] .hos-tooltip__arrow {
+    right: -3px;
+    top: var(--hos-arrow-y, 50%);
+    margin-top: -3.5px;
+  }
+
+  .hos-tooltip[data-side="right"] .hos-tooltip__arrow {
+    left: -3px;
+    top: var(--hos-arrow-y, 50%);
+    margin-top: -3.5px;
+  }
+}
+
+
+
+/* typography & misc */
+/* components/kbd/kbd.css */
+@layer hosanna.components {
+  .hos-kbd-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .hos-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 1.4em;
+    height: 1.5em;
+    padding-inline: 0.4em;
+
+    font-family: var(--hos-font-mono);
+    font-size: 0.72rem;
+    line-height: 1;
+    font-weight: var(--hos-weight-medium);
+    color: var(--hos-fg-muted);
+
+    background-color: var(--hos-surface-raised);
+    border: var(--hos-border-width) solid var(--hos-border-strong);
+    /* A single-pixel bottom edge reads as a keycap without resorting to a
+     * skeuomorphic gradient. */
+    border-bottom-width: 2px;
+    border-radius: var(--hos-radius-sm);
+
+    user-select: none;
+  }
+
+  .hos-kbd[data-size="sm"] {
+    min-width: 16px;
+    height: 16px;
+    font-size: 10px;
+  }
+}
+
+
+/* components/text/text.css */
+@layer hosanna.components {
+  .hos-text {
+    color: var(--hos-fg);
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+    min-width: 0;
+  }
+
+  /* Each size sets its own line-height — pairing them is a typographic
+   * decision, not something a caller should have to get right. */
+  /* Display steps — the marketing layer. See tokens.css. */
+  .hos-text[data-size="display-sm"] {
+    font-size: var(--hos-display-sm);
+    line-height: var(--hos-display-sm-lh);
+    letter-spacing: var(--hos-display-tracking);
+    text-wrap: balance;
+  }
+  .hos-text[data-size="display-md"] {
+    font-size: var(--hos-display-md);
+    line-height: var(--hos-display-md-lh);
+    letter-spacing: var(--hos-display-tracking);
+    text-wrap: balance;
+  }
+  .hos-text[data-size="display-lg"] {
+    font-size: var(--hos-display-lg);
+    line-height: var(--hos-display-lg-lh);
+    letter-spacing: var(--hos-display-tracking-tight);
+    text-wrap: balance;
+  }
+  .hos-text[data-size="display-xl"] {
+    font-size: var(--hos-display-xl);
+    line-height: var(--hos-display-xl-lh);
+    letter-spacing: var(--hos-display-tracking-tight);
+    text-wrap: balance;
+  }
+
+  .hos-text[data-size="2xs"] {
+    font-size: var(--hos-text-2xs);
+    line-height: var(--hos-text-2xs-lh);
+  }
+  .hos-text[data-size="xs"] {
+    font-size: var(--hos-text-xs);
+    line-height: var(--hos-text-xs-lh);
+  }
+  .hos-text[data-size="sm"] {
+    font-size: var(--hos-text-sm);
+    line-height: var(--hos-text-sm-lh);
+  }
+  .hos-text[data-size="base"] {
+    font-size: var(--hos-text-base);
+    line-height: var(--hos-text-base-lh);
+  }
+  .hos-text[data-size="md"] {
+    font-size: var(--hos-text-md);
+    line-height: var(--hos-text-md-lh);
+  }
+  .hos-text[data-size="lg"] {
+    font-size: var(--hos-text-lg);
+    line-height: var(--hos-text-lg-lh);
+  }
+  .hos-text[data-size="xl"] {
+    font-size: var(--hos-text-xl);
+    line-height: var(--hos-text-xl-lh);
+    letter-spacing: var(--hos-tracking-tight);
+  }
+  .hos-text[data-size="2xl"] {
+    font-size: var(--hos-text-2xl);
+    line-height: var(--hos-text-2xl-lh);
+    letter-spacing: var(--hos-tracking-tight);
+  }
+  .hos-text[data-size="3xl"] {
+    font-size: var(--hos-text-3xl);
+    line-height: var(--hos-text-3xl-lh);
+    letter-spacing: var(--hos-tracking-tight);
+  }
+
+  .hos-text[data-tone="muted"] {
+    color: var(--hos-fg-muted);
+  }
+  .hos-text[data-tone="subtle"] {
+    color: var(--hos-fg-subtle);
+  }
+  .hos-text[data-tone="accent"] {
+    color: var(--hos-accent-fg);
+  }
+  .hos-text[data-tone="danger"] {
+    color: var(--hos-danger-fg);
+  }
+  .hos-text[data-tone="success"] {
+    color: var(--hos-success-fg);
+  }
+  .hos-text[data-tone="warning"] {
+    color: var(--hos-warning-fg);
+  }
+
+  .hos-text[data-weight="normal"] {
+    font-weight: var(--hos-weight-normal);
+  }
+  .hos-text[data-weight="medium"] {
+    font-weight: var(--hos-weight-medium);
+  }
+  .hos-text[data-weight="semibold"] {
+    font-weight: var(--hos-weight-semibold);
+  }
+
+  .hos-heading {
+    text-wrap: balance;
+  }
+}
+
+
+
+/* styles/utilities.css */
+@layer hosanna.utilities {
+  /* A closed set of utilities — only what components themselves need, plus the
+   * few escape hatches every app ends up wanting. This is not a utility
+   * framework and should not grow into one. */
+
+  /* Visible to screen readers, invisible on screen. Used by every icon-only
+   * control, live region and skip link in the library. */
+  .hos-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Same, until focused — the skip-link pattern. */
+  .hos-sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .hos-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Line clamping needs the -webkit- prefixed box model in every engine that
+   * currently ships it, including Firefox. */
+  .hos-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--hos-clamp-lines, 2);
+    line-clamp: var(--hos-clamp-lines, 2);
+    overflow: hidden;
+  }
+
+  .hos-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hos-mono {
+    font-family: var(--hos-font-mono);
+  }
+
+  /* Any scrollable region that could exceed its container. Pairs with the
+   * rule that page bodies must never scroll horizontally. */
+  .hos-scroll-x {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .hos-scroll-y {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+}
+
