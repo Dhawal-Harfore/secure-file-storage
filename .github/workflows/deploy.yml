@@ -1,0 +1,183 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-master
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      api-changed: ${{ steps.changes.outputs.api }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect API source changes
+        id: changes
+        run: |
+          before="${{ github.event.before }}"
+          if [ "${{ github.event_name }}" != "push" ] || [ -z "$before" ] \
+             || [ "$before" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+            echo "no usable diff base, treating API as changed"
+          elif git diff --name-only "$before" "${{ github.sha }}" | grep -qE '^(src/|pom\.xml|mvnw|\.mvn/)'; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+            echo "API sources changed"
+          else
+            echo "api=false" >> "$GITHUB_OUTPUT"
+            echo "API sources unchanged"
+          fi
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build API
+        run: sh mvnw -B -ntp -DskipTests package
+
+      - name: Check frontend
+        run: node web/test/deck-conformance.mjs
+
+      - name: Bundle
+        run: |
+          mkdir -p dist
+          cp target/*.jar dist/vault-api.jar
+          tar czf dist/web.tgz -C web .
+          cp deploy/vault-api.service dist/
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: bundle
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: bundle
+          path: dist
+
+      - name: Verify secrets are configured
+        run: |
+          missing=""
+          [ -n "${{ secrets.TS_AUTHKEY }}" ] || missing="$missing TS_AUTHKEY"
+          [ -n "${{ secrets.VPS_SSH_KEY }}" ] || missing="$missing VPS_SSH_KEY"
+          [ -n "${{ secrets.VPS_HOST }}" ] || missing="$missing VPS_HOST"
+          if [ -n "$missing" ]; then
+            echo "Deploy not configured yet. Missing secrets:$missing"
+            exit 1
+          fi
+
+      - uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
+      - name: Widen UDP buffers
+        run: sudo sysctl -w net.core.rmem_max=7500000 net.core.wmem_max=7500000
+
+      - name: Confirm the VPS is reachable on the tailnet
+        run: |
+          tailscale status --peers=false || true
+          for i in $(seq 1 12); do
+            if timeout 5 bash -c "echo > /dev/tcp/${{ secrets.VPS_HOST }}/22" 2>/dev/null; then
+              echo "reached ${{ secrets.VPS_HOST }}:22"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "could not reach ${{ secrets.VPS_HOST }}:22 over the tailnet"
+          tailscale status || true
+          exit 1
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Ship bundle
+        id: ship
+        env:
+          HOST: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+        run: |
+          SSHOPTS="-o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 -o ServerAliveInterval=10 -o ServerAliveCountMax=6"
+          RSH="ssh $SSHOPTS"
+
+          timeout 120 ssh $SSHOPTS "$HOST" "mkdir -p /tmp/vault.incoming /opt/vault"
+
+          timeout 300 rsync -a --partial -e "$RSH" \
+            dist/web.tgz dist/vault-api.service "$HOST:/tmp/vault.incoming/"
+
+          have_jar=$(timeout 120 ssh $SSHOPTS "$HOST" "test -s /opt/vault/vault-api.jar && echo yes || echo no")
+
+          if [ "${{ needs.build.outputs.api-changed }}" = "false" ] && [ "$have_jar" = "yes" ]; then
+            echo "api-changed=false" >> "$GITHUB_OUTPUT"
+            echo "API sources unchanged and the jar is already on the box, skipping 21MB transfer"
+          else
+            echo "api-changed=true" >> "$GITHUB_OUTPUT"
+            timeout 900 rsync -a --partial --stats -e "$RSH" \
+              dist/vault-api.jar "$HOST:/opt/vault/vault-api.jar"
+          fi
+
+      - name: Release
+        env:
+          HOST: ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}
+          API_CHANGED: ${{ steps.ship.outputs.api-changed }}
+        run: |
+          timeout 300 ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 \
+            "$HOST" "API_CHANGED='$API_CHANGED' bash -euo pipefail -s" <<'REMOTE'
+          IN=/tmp/vault.incoming
+          WEB=/srv/vault-web
+          TS=$(date -u +%Y%m%d%H%M%S)
+
+          mkdir -p /var/backups/vault "$WEB"
+          if [ -n "$(ls -A "$WEB" 2>/dev/null)" ]; then
+            tar czf "/var/backups/vault/web-$TS.tgz" -C "$WEB" .
+            ls -1t /var/backups/vault/web-*.tgz | tail -n +6 | xargs -r rm -f
+          fi
+
+          rm -rf "$IN/web" && mkdir -p "$IN/web"
+          tar xzf "$IN/web.tgz" -C "$IN/web"
+          rsync -a --delete "$IN/web/" "$WEB/"
+          chown -R root:root "$WEB"
+          restorecon -R "$WEB" 2>/dev/null || true
+
+          install -D -m 644 "$IN/vault-api.service" /etc/systemd/system/vault-api.service
+          systemctl daemon-reload
+          systemctl enable vault-api >/dev/null 2>&1
+
+          if [ "$API_CHANGED" = "true" ] || ! systemctl is-active --quiet vault-api; then
+            restorecon /opt/vault/vault-api.jar 2>/dev/null || true
+            systemctl restart vault-api
+            echo "api restarted"
+          else
+            echo "api unchanged, left running"
+          fi
+
+          rm -rf "$IN"
+          echo "released, backup at /var/backups/vault/web-$TS.tgz"
+          REMOTE
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://thecollege.cloud/ || true)
+            [ "$code" = "200" ] && echo "site up ($code)" && exit 0
+            sleep 6
+          done
+          echo "site did not return 200"
+          exit 1

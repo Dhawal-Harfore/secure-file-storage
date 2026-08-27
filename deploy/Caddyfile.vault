@@ -1,0 +1,33 @@
+thecollege.cloud {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+	}
+
+	@api path /api/*
+	handle @api {
+		reverse_proxy host.containers.internal:8082 {
+			transport http {
+				read_timeout 2m
+				write_timeout 2m
+			}
+		}
+	}
+
+	handle {
+		root * /srv/vault-web
+		try_files {path} {path}.html {path}/index.html /index.html
+		file_server
+		header /vendor/* Cache-Control "public, max-age=31536000, immutable"
+	}
+}
+
+www.thecollege.cloud {
+	redir https://thecollege.cloud{uri} permanent
+}
