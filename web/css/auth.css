@@ -1,0 +1,215 @@
+body {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+}
+
+.pv-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: var(--hos-space-4) var(--hos-space-6);
+}
+
+.pv-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hos-space-2);
+  font-weight: 650;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pv-brand svg {
+  color: var(--hos-accent);
+}
+
+.pv-auth {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.4rem 4rem;
+}
+
+.pv-auth-card {
+  width: 100%;
+  max-width: 25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--hos-space-4);
+}
+
+.pv-auth-mark {
+  display: inline-flex;
+  color: var(--hos-accent);
+}
+
+.pv-auth h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.pv-auth-sub {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--hos-fg-muted);
+}
+
+.pv-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hos-space-3);
+  width: 100%;
+  text-align: left;
+}
+
+.pv-auth-form .hos-input,
+.pv-auth-form .hos-button {
+  width: 100%;
+}
+
+.pv-auth-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--hos-fg-subtle);
+}
+
+.pv-auth-error {
+  margin: 0;
+  width: 100%;
+  padding: var(--hos-space-2) var(--hos-space-3);
+  font-size: 0.85rem;
+  text-align: left;
+  color: var(--hos-danger-fg);
+  background: var(--hos-danger-subtle);
+  border: 1px solid var(--hos-danger-subtle);
+  border-radius: var(--hos-radius-md);
+}
+
+.pv-devlink {
+  width: 100%;
+  padding: var(--hos-space-3);
+  font-family: var(--hos-font-mono);
+  font-size: 0.75rem;
+  text-align: left;
+  word-break: break-all;
+  color: var(--hos-fg-muted);
+  background: var(--hos-bg-sunken);
+  border: 1px dashed var(--hos-border-strong);
+  border-radius: var(--hos-radius-md);
+}
+
+.pv-devlink a {
+  color: var(--hos-accent);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.veil-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--hos-bg-sunken);
+  overflow: hidden;
+}
+
+.veil-host {
+  position: absolute;
+  inset: 0;
+  display: block;
+  --veil-z: 5;
+}
+
+.veil-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: 2rem;
+}
+
+.veil-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.85rem;
+  max-width: 30rem;
+  animation: veil-in 0.4s var(--hos-ease-out) both;
+}
+
+@keyframes veil-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.veil-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--hos-fg);
+}
+
+.veil-title-armed {
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.veil-sub {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--hos-fg-muted);
+}
+
+.veil-hand {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: 36px;
+  height: 36px;
+  margin: -32px 0 0 -18px;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgb(0 0 0 / 0.6));
+  will-change: transform;
+}
+
+.veil-root[data-phase="armed"],
+.veil-root[data-phase="armed"] .veil-host,
+.veil-root[data-phase="armed"] canvas {
+  cursor: none !important;
+}
+
+.veil-root[data-phase="revealed"] .veil-chrome {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.veil-root[data-phase="armed"],
+.veil-root[data-phase="revealed"] {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veil-panel {
+    animation: none;
+  }
+}
