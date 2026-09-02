@@ -1,7 +1,7 @@
 export const config = {
   productName: "Vault",
   projectTitle: "Policy-Based Secure Cloud File Storage",
-  apiSource: "mock",
+  apiSource: "live",
   apiBase: "/api",
   levelLabels: {
     owner: "Owner",
