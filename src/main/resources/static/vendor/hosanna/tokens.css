@@ -1,0 +1,635 @@
+/* styles/tokens.entry.css */
+/* hosanna-ui/tokens.css
+ *
+ * Tokens only — no reset, no component styles. Import this when you want to
+ * build against the design system's variables without adopting its components. */
+/* styles/layers.css */
+/* Cascade order for everything the library ships.
+ *
+ * Declaring the order once, up front, is what lets a consuming app override any
+ * component style with a plain single-class selector — no !important, no
+ * specificity escalation. Anything the app writes outside these layers wins
+ * automatically, because unlayered styles beat layered ones.
+ */
+@layer hosanna.reset, hosanna.tokens, hosanna.base, hosanna.components, hosanna.utilities;
+
+
+/* styles/tokens.css */
+@layer hosanna.tokens {
+  /* ===========================================================================
+   * REFERENCE TOKENS — raw values. Components never read these directly; they
+   * only ever read the SYSTEM tokens (_theme-dark.css / _theme-light.css), so
+   * retargeting a theme means remapping ~45 semantic names, not auditing every
+   * component rule.
+   * ========================================================================= */
+  :root {
+    /* Graphite ramp. One hue (265 — cool blue-grey) at low chroma, so surfaces
+     * read neutral without going dead grey on a warm display profile. */
+    --hos-graphite-0: oklch(13% 0.006 265);
+    --hos-graphite-50: oklch(17% 0.008 265);
+    --hos-graphite-100: oklch(21% 0.009 265);
+    --hos-graphite-150: oklch(25% 0.01 265);
+    --hos-graphite-200: oklch(28% 0.011 265);
+    --hos-graphite-300: oklch(31% 0.012 265);
+    --hos-graphite-400: oklch(38% 0.013 265);
+    --hos-graphite-500: oklch(52% 0.014 265);
+    --hos-graphite-600: oklch(68% 0.012 265);
+    --hos-graphite-700: oklch(80% 0.008 265);
+    --hos-graphite-800: oklch(88% 0.005 265);
+    --hos-graphite-900: oklch(96% 0.003 265);
+    --hos-graphite-1000: oklch(99.5% 0 0);
+
+    /* Cyan signal. Bright end serves dark surfaces, dark end serves light. */
+    --hos-cyan-300: oklch(85% 0.09 195);
+    --hos-cyan-400: oklch(77% 0.14 195);
+    --hos-cyan-500: oklch(72% 0.15 195);
+    --hos-cyan-600: oklch(67% 0.15 195);
+    --hos-cyan-700: oklch(58% 0.13 200);
+    --hos-cyan-800: oklch(52% 0.11 205);
+    --hos-cyan-900: oklch(45% 0.1 208);
+
+    /* Status hues. Lightness is selected per theme, not fixed here. */
+    --hos-red-400: oklch(72% 0.18 25);
+    --hos-red-500: oklch(65% 0.2 25);
+    --hos-red-600: oklch(58% 0.21 25);
+    --hos-red-700: oklch(51% 0.2 25);
+    --hos-green-400: oklch(78% 0.14 150);
+    --hos-green-500: oklch(70% 0.16 150);
+    --hos-green-600: oklch(62% 0.15 150);
+    --hos-green-700: oklch(52% 0.13 152);
+    --hos-amber-400: oklch(84% 0.14 85);
+    --hos-amber-500: oklch(78% 0.15 85);
+    --hos-amber-600: oklch(70% 0.15 78);
+    --hos-amber-700: oklch(58% 0.13 70);
+    --hos-blue-400: oklch(76% 0.11 250);
+    --hos-blue-500: oklch(70% 0.13 250);
+    --hos-blue-600: oklch(60% 0.15 253);
+    --hos-blue-700: oklch(52% 0.16 255);
+
+    /* =========================================================================
+     * DIMENSION — theme-independent.
+     * ======================================================================= */
+
+    /* 4px grid. Half-steps exist only where control geometry needs them. */
+    --hos-space-0: 0px;
+    --hos-space-px: 1px;
+    --hos-space-0-5: 2px;
+    --hos-space-1: 4px;
+    --hos-space-1-5: 6px;
+    --hos-space-2: 8px;
+    --hos-space-2-5: 10px;
+    --hos-space-3: 12px;
+    --hos-space-3-5: 14px;
+    --hos-space-4: 16px;
+    --hos-space-5: 20px;
+    --hos-space-6: 24px;
+    --hos-space-7: 28px;
+    --hos-space-8: 32px;
+    --hos-space-10: 40px;
+    --hos-space-12: 48px;
+    --hos-space-16: 64px;
+    --hos-space-20: 80px;
+    --hos-space-24: 96px;
+
+    /* Restrained by policy: 4-8px covers every product surface. --radius-xl is
+     * reserved for viewport-edge surfaces (drawers) where the larger corner is
+     * structural rather than decorative. */
+    --hos-radius-none: 0px;
+    --hos-radius-xs: 2px;
+    --hos-radius-sm: 3px;
+    --hos-radius-md: 4px;
+    --hos-radius-lg: 6px;
+    --hos-radius-xl: 12px;
+    --hos-radius-full: 9999px;
+
+    --hos-border-width: 1px;
+    --hos-border-width-strong: 2px;
+
+    /* System stack: no font files, no FOUT, no layout shift, native on every
+     * OS. Override --hos-font-sans in your app to swap in a webfont. */
+    --hos-font-sans:
+      "Hanken Grotesk Variable", "Hanken Grotesk", ui-sans-serif, system-ui,
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji";
+    --hos-font-mono:
+      "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular,
+      "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+    /* UI type scale — 14px base, sized for dense product surfaces rather than
+     * marketing pages. Each step ships with its intended line-height. */
+    --hos-text-2xs: 11px;
+    --hos-text-2xs-lh: 16px;
+    --hos-text-xs: 12px;
+    --hos-text-xs-lh: 16px;
+    --hos-text-sm: 13px;
+    --hos-text-sm-lh: 20px;
+    --hos-text-base: 14px;
+    --hos-text-base-lh: 20px;
+    --hos-text-md: 15px;
+    --hos-text-md-lh: 24px;
+    --hos-text-lg: 17px;
+    --hos-text-lg-lh: 24px;
+    --hos-text-xl: 20px;
+    --hos-text-xl-lh: 28px;
+    --hos-text-2xl: 24px;
+    --hos-text-2xl-lh: 32px;
+    --hos-text-3xl: 30px;
+    --hos-text-3xl-lh: 36px;
+
+    /* Display scale — marketing surfaces only.
+     *
+     * The scale above is drawn for product UI and deliberately stops at
+     * 30px, which is right inside an app and far too small for a page
+     * whose job is to convince someone in one screen. These four steps
+     * are the marketing layer, and they are fluid because a hero has to
+     * hold together from a phone to a 27-inch display without a media
+     * query per breakpoint.
+     *
+     * Leading tightens as size grows — display type set at body leading
+     * looks unset — and tracking goes negative for the same reason: the
+     * letterspace that reads as even at 16px reads as loose at 64px. */
+    /* The lower bound of each step is the *phone* size and is chosen first:
+     * a scale that starts at its desktop value and shrinks reluctantly gives
+     * you a hero that needs six lines on a 390px screen. Leading loosens at
+     * the small end too, because tight display leading that reads as crisp at
+     * 80px reads as cramped at 36. */
+    --hos-display-sm: clamp(1.5rem, 1.28rem + 1.1vw, 2.25rem);
+    --hos-display-sm-lh: 1.2;
+    --hos-display-md: clamp(1.75rem, 1.35rem + 2vw, 3rem);
+    --hos-display-md-lh: 1.14;
+    --hos-display-lg: clamp(2rem, 1.4rem + 3vw, 4rem);
+    --hos-display-lg-lh: 1.1;
+    --hos-display-xl: clamp(2.25rem, 1.45rem + 4vw, 5rem);
+    --hos-display-xl-lh: 1.06;
+
+    --hos-display-tracking: -0.028em;
+    --hos-display-tracking-tight: -0.036em;
+
+    --hos-weight-normal: 400;
+    --hos-weight-medium: 500;
+    --hos-weight-semibold: 600;
+
+    --hos-tracking-tight: -0.01em;
+    --hos-tracking-normal: 0em;
+    --hos-tracking-wide: 0.02em;
+
+    /* Motion. 100-180ms is the working range; slower than that and the UI
+     * starts getting in the way of the task. Reduced-motion collapses these in
+     * base.css. */
+    --hos-dur-instant: 80ms;
+    --hos-dur-fast: 120ms;
+    --hos-dur-base: 200ms;
+    --hos-dur-slow: 240ms;
+    --hos-ease-out: cubic-bezier(0.2, 0, 0, 1);
+    --hos-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --hos-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+    /* Stacking. Gaps leave room for app-owned layers in between. */
+    --hos-z-base: 0;
+    --hos-z-raised: 10;
+    --hos-z-sticky: 1100;
+    --hos-z-backdrop: 1200;
+    --hos-z-dialog: 1300;
+    --hos-z-popover: 1400;
+    --hos-z-toast: 1500;
+    --hos-z-tooltip: 1600;
+
+    /* Focus ring — one definition, honoured by every interactive element. */
+    --hos-ring-width: 2px;
+    --hos-ring-offset: 2px;
+
+    /* helm draws buttons 2px shorter than inputs, and icon buttons 4px
+     * shorter again. Derived so density still scales all three together. */
+    --hos-button-h-sm: calc(var(--hos-control-h-sm) - 2px);
+    --hos-button-h-md: calc(var(--hos-control-h-md) - 2px);
+    --hos-button-h-lg: calc(var(--hos-control-h-lg) - 2px);
+    --hos-icon-button-sm: calc(var(--hos-control-h-sm) - 4px);
+    --hos-icon-button-md: calc(var(--hos-control-h-md) - 4px);
+    --hos-icon-button-lg: calc(var(--hos-control-h-lg) - 4px);
+
+    --hos-container-sm: 640px;
+    --hos-container-md: 768px;
+    --hos-container-lg: 1024px;
+    --hos-container-xl: 1280px;
+    --hos-container-2xl: 1440px;
+  }
+
+  /* ===========================================================================
+   * SYSTEM TOKENS
+   * Dark is the default — it is what the components were drawn against.
+   * Both theme bodies live in single partials that the CSS build splices in, so
+   * the OS-preference fallback below can never drift from the explicit theme.
+   * ========================================================================= */
+  :root {
+    /* styles/_theme-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+    color-scheme: dark;
+
+    --hos-bg: #1a1814;
+    --hos-bg-sunken: #131210;
+    --hos-surface: #221f1a;
+    --hos-surface-raised: #221f1a;
+    --hos-surface-overlay: #221f1a;
+    --hos-surface-hover: rgb(241 239 231 / 0.05);
+    --hos-surface-active: rgb(241 239 231 / 0.08);
+    --hos-surface-selected: #122a3a;
+
+    --hos-fg: #f1efe7;
+    --hos-fg-muted: #b0ada2;
+    --hos-fg-subtle: #7c7a6f;
+    --hos-fg-on-accent: #06283d;
+    --hos-fg-inverted: #1a1814;
+
+    --hos-border: #2c2a23;
+    --hos-border-subtle: #232119;
+    --hos-border-strong: #3b382f;
+    --hos-border-accent: rgb(56 189 248 / 0.45);
+
+    --hos-accent: #38bdf8;
+    --hos-accent-hover: #7dd3fc;
+    --hos-accent-active: #0ea5e9;
+    --hos-accent-subtle: #122a3a;
+    --hos-accent-fg: #7dd3fc;
+
+    --hos-danger: #e07a5f;
+    --hos-danger-hover: #eb9880;
+    --hos-danger-active: #c96548;
+    --hos-danger-subtle: #2a1b16;
+    --hos-danger-fg: #e07a5f;
+    --hos-danger-on: #2a1611;
+
+    --hos-success: #7fb069;
+    --hos-success-subtle: #1c2418;
+    --hos-success-fg: #93c47d;
+    --hos-success-on: #16210f;
+
+    --hos-warning: #d9a441;
+    --hos-warning-subtle: #2a2216;
+    --hos-warning-fg: #e5b95f;
+    --hos-warning-on: #241c0d;
+
+    --hos-info: #38bdf8;
+    --hos-info-subtle: #122a3a;
+    --hos-info-fg: #7dd3fc;
+    --hos-info-on: #06283d;
+
+    --hos-ring: #38bdf8;
+    --hos-ring-offset-color: #1a1814;
+    --hos-backdrop: rgb(0 0 0 / 0.55);
+    --hos-skeleton: rgb(241 239 231 / 0.06);
+    --hos-skeleton-shine: rgb(241 239 231 / 0.1);
+
+    --hos-shadow-sm: 0 1px 1px rgb(0 0 0 / 0.3);
+    --hos-shadow-md: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.45);
+    --hos-shadow-lg: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 34px rgb(0 0 0 / 0.55);
+    --hos-shadow-inset-top: inset 0 1px 0 rgb(241 239 231 / 0.05);
+
+
+  }
+
+  [data-theme="dark"] {
+    /* styles/_theme-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+    color-scheme: dark;
+
+    --hos-bg: #1a1814;
+    --hos-bg-sunken: #131210;
+    --hos-surface: #221f1a;
+    --hos-surface-raised: #221f1a;
+    --hos-surface-overlay: #221f1a;
+    --hos-surface-hover: rgb(241 239 231 / 0.05);
+    --hos-surface-active: rgb(241 239 231 / 0.08);
+    --hos-surface-selected: #122a3a;
+
+    --hos-fg: #f1efe7;
+    --hos-fg-muted: #b0ada2;
+    --hos-fg-subtle: #7c7a6f;
+    --hos-fg-on-accent: #06283d;
+    --hos-fg-inverted: #1a1814;
+
+    --hos-border: #2c2a23;
+    --hos-border-subtle: #232119;
+    --hos-border-strong: #3b382f;
+    --hos-border-accent: rgb(56 189 248 / 0.45);
+
+    --hos-accent: #38bdf8;
+    --hos-accent-hover: #7dd3fc;
+    --hos-accent-active: #0ea5e9;
+    --hos-accent-subtle: #122a3a;
+    --hos-accent-fg: #7dd3fc;
+
+    --hos-danger: #e07a5f;
+    --hos-danger-hover: #eb9880;
+    --hos-danger-active: #c96548;
+    --hos-danger-subtle: #2a1b16;
+    --hos-danger-fg: #e07a5f;
+    --hos-danger-on: #2a1611;
+
+    --hos-success: #7fb069;
+    --hos-success-subtle: #1c2418;
+    --hos-success-fg: #93c47d;
+    --hos-success-on: #16210f;
+
+    --hos-warning: #d9a441;
+    --hos-warning-subtle: #2a2216;
+    --hos-warning-fg: #e5b95f;
+    --hos-warning-on: #241c0d;
+
+    --hos-info: #38bdf8;
+    --hos-info-subtle: #122a3a;
+    --hos-info-fg: #7dd3fc;
+    --hos-info-on: #06283d;
+
+    --hos-ring: #38bdf8;
+    --hos-ring-offset-color: #1a1814;
+    --hos-backdrop: rgb(0 0 0 / 0.55);
+    --hos-skeleton: rgb(241 239 231 / 0.06);
+    --hos-skeleton-shine: rgb(241 239 231 / 0.1);
+
+    --hos-shadow-sm: 0 1px 1px rgb(0 0 0 / 0.3);
+    --hos-shadow-md: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.45);
+    --hos-shadow-lg: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 34px rgb(0 0 0 / 0.55);
+    --hos-shadow-inset-top: inset 0 1px 0 rgb(241 239 231 / 0.05);
+
+
+  }
+
+  [data-theme="light"] {
+    /* styles/_theme-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+    color-scheme: light;
+
+    --hos-bg: #fbfbf9;
+    --hos-bg-sunken: #f3f3ef;
+    --hos-surface: #ffffff;
+    --hos-surface-raised: #ffffff;
+    --hos-surface-overlay: #ffffff;
+    --hos-surface-hover: rgb(23 23 15 / 0.04);
+    --hos-surface-active: rgb(23 23 15 / 0.07);
+    --hos-surface-selected: #e0f2fe;
+
+    --hos-fg: #17170f;
+    --hos-fg-muted: #54544c;
+    --hos-fg-subtle: #8a8a80;
+    --hos-fg-on-accent: #ffffff;
+    --hos-fg-inverted: #fbfbf9;
+
+    --hos-border: #e6e5de;
+    --hos-border-subtle: #efeee8;
+    --hos-border-strong: #d4d3ca;
+    --hos-border-accent: rgb(2 132 199 / 0.45);
+
+    --hos-accent: #0284c7;
+    --hos-accent-hover: #0369a1;
+    --hos-accent-active: #075985;
+    --hos-accent-subtle: #e0f2fe;
+    --hos-accent-fg: #0369a1;
+
+    --hos-danger: #b1361d;
+    --hos-danger-hover: #93301a;
+    --hos-danger-active: #7d2916;
+    --hos-danger-subtle: #f8ece9;
+    --hos-danger-fg: #b1361d;
+    --hos-danger-on: #ffffff;
+
+    --hos-success: #4d7c3f;
+    --hos-success-subtle: #edf4ea;
+    --hos-success-fg: #3f6633;
+    --hos-success-on: #ffffff;
+
+    --hos-warning: #a76f18;
+    --hos-warning-subtle: #fdf3e2;
+    --hos-warning-fg: #8a5c14;
+    --hos-warning-on: #ffffff;
+
+    --hos-info: #0284c7;
+    --hos-info-subtle: #e0f2fe;
+    --hos-info-fg: #0369a1;
+    --hos-info-on: #ffffff;
+
+    --hos-ring: #0284c7;
+    --hos-ring-offset-color: #fbfbf9;
+    --hos-backdrop: rgb(23 23 15 / 0.18);
+    --hos-skeleton: rgb(23 23 15 / 0.06);
+    --hos-skeleton-shine: rgb(23 23 15 / 0.1);
+
+    --hos-shadow-sm: 0 1px 1px rgb(23 23 15 / 0.03);
+    --hos-shadow-md: 0 1px 2px rgb(23 23 15 / 0.05), 0 4px 12px rgb(23 23 15 / 0.07);
+    --hos-shadow-lg: 0 1px 2px rgb(23 23 15 / 0.06), 0 8px 24px rgb(23 23 15 / 0.1);
+    --hos-shadow-inset-top: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+
+  }
+
+  /* Follow the OS only when the app has not pinned a theme. An explicit
+   * `data-theme` on <html> always wins, in both directions — that is what makes
+   * a user-facing theme toggle actually reliable. */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"]) {
+      /* styles/_theme-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+      color-scheme: light;
+
+      --hos-bg: #fbfbf9;
+      --hos-bg-sunken: #f3f3ef;
+      --hos-surface: #ffffff;
+      --hos-surface-raised: #ffffff;
+      --hos-surface-overlay: #ffffff;
+      --hos-surface-hover: rgb(23 23 15 / 0.04);
+      --hos-surface-active: rgb(23 23 15 / 0.07);
+      --hos-surface-selected: #e0f2fe;
+
+      --hos-fg: #17170f;
+      --hos-fg-muted: #54544c;
+      --hos-fg-subtle: #8a8a80;
+      --hos-fg-on-accent: #ffffff;
+      --hos-fg-inverted: #fbfbf9;
+
+      --hos-border: #e6e5de;
+      --hos-border-subtle: #efeee8;
+      --hos-border-strong: #d4d3ca;
+      --hos-border-accent: rgb(2 132 199 / 0.45);
+
+      --hos-accent: #0284c7;
+      --hos-accent-hover: #0369a1;
+      --hos-accent-active: #075985;
+      --hos-accent-subtle: #e0f2fe;
+      --hos-accent-fg: #0369a1;
+
+      --hos-danger: #b1361d;
+      --hos-danger-hover: #93301a;
+      --hos-danger-active: #7d2916;
+      --hos-danger-subtle: #f8ece9;
+      --hos-danger-fg: #b1361d;
+      --hos-danger-on: #ffffff;
+
+      --hos-success: #4d7c3f;
+      --hos-success-subtle: #edf4ea;
+      --hos-success-fg: #3f6633;
+      --hos-success-on: #ffffff;
+
+      --hos-warning: #a76f18;
+      --hos-warning-subtle: #fdf3e2;
+      --hos-warning-fg: #8a5c14;
+      --hos-warning-on: #ffffff;
+
+      --hos-info: #0284c7;
+      --hos-info-subtle: #e0f2fe;
+      --hos-info-fg: #0369a1;
+      --hos-info-on: #ffffff;
+
+      --hos-ring: #0284c7;
+      --hos-ring-offset-color: #fbfbf9;
+      --hos-backdrop: rgb(23 23 15 / 0.18);
+      --hos-skeleton: rgb(23 23 15 / 0.06);
+      --hos-skeleton-shine: rgb(23 23 15 / 0.1);
+
+      --hos-shadow-sm: 0 1px 1px rgb(23 23 15 / 0.03);
+      --hos-shadow-md: 0 1px 2px rgb(23 23 15 / 0.05), 0 4px 12px rgb(23 23 15 / 0.07);
+      --hos-shadow-lg: 0 1px 2px rgb(23 23 15 / 0.06), 0 8px 24px rgb(23 23 15 / 0.1);
+      --hos-shadow-inset-top: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+
+    }
+  }
+
+  /* Landing and other non-app pages sit on pitch black rather than the warm
+   * app ground. Set data-hos-canvas="black" on <html> or any wrapper. Light
+   * theme ignores it: there is no black paper. */
+  :root:not([data-theme="light"])[data-hos-canvas="black"],
+  :root:not([data-theme="light"]) [data-hos-canvas="black"] {
+    /* styles/_canvas-black.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here.
+     *
+     * The pitch-black ground used for landing and other non-app pages. Only the
+     * surface ramp changes; ink, accent and shadows stay as the dark theme sets
+     * them. */
+    --hos-bg: #000000;
+    --hos-bg-sunken: #070708;
+    --hos-surface: #0e0e10;
+    --hos-surface-raised: #0e0e10;
+    --hos-surface-overlay: #0e0e10;
+    --hos-border: #1e1e22;
+    --hos-border-subtle: #17171a;
+    --hos-border-strong: #2c2c31;
+    --hos-ring-offset-color: #000000;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-hos-canvas="black"],
+    :root:not([data-theme="dark"]):not([data-theme="light"]) [data-hos-canvas="black"] {
+      /* styles/_theme-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+      color-scheme: light;
+
+      --hos-bg: #fbfbf9;
+      --hos-bg-sunken: #f3f3ef;
+      --hos-surface: #ffffff;
+      --hos-surface-raised: #ffffff;
+      --hos-surface-overlay: #ffffff;
+      --hos-surface-hover: rgb(23 23 15 / 0.04);
+      --hos-surface-active: rgb(23 23 15 / 0.07);
+      --hos-surface-selected: #e0f2fe;
+
+      --hos-fg: #17170f;
+      --hos-fg-muted: #54544c;
+      --hos-fg-subtle: #8a8a80;
+      --hos-fg-on-accent: #ffffff;
+      --hos-fg-inverted: #fbfbf9;
+
+      --hos-border: #e6e5de;
+      --hos-border-subtle: #efeee8;
+      --hos-border-strong: #d4d3ca;
+      --hos-border-accent: rgb(2 132 199 / 0.45);
+
+      --hos-accent: #0284c7;
+      --hos-accent-hover: #0369a1;
+      --hos-accent-active: #075985;
+      --hos-accent-subtle: #e0f2fe;
+      --hos-accent-fg: #0369a1;
+
+      --hos-danger: #b1361d;
+      --hos-danger-hover: #93301a;
+      --hos-danger-active: #7d2916;
+      --hos-danger-subtle: #f8ece9;
+      --hos-danger-fg: #b1361d;
+      --hos-danger-on: #ffffff;
+
+      --hos-success: #4d7c3f;
+      --hos-success-subtle: #edf4ea;
+      --hos-success-fg: #3f6633;
+      --hos-success-on: #ffffff;
+
+      --hos-warning: #a76f18;
+      --hos-warning-subtle: #fdf3e2;
+      --hos-warning-fg: #8a5c14;
+      --hos-warning-on: #ffffff;
+
+      --hos-info: #0284c7;
+      --hos-info-subtle: #e0f2fe;
+      --hos-info-fg: #0369a1;
+      --hos-info-on: #ffffff;
+
+      --hos-ring: #0284c7;
+      --hos-ring-offset-color: #fbfbf9;
+      --hos-backdrop: rgb(23 23 15 / 0.18);
+      --hos-skeleton: rgb(23 23 15 / 0.06);
+      --hos-skeleton-shine: rgb(23 23 15 / 0.1);
+
+      --hos-shadow-sm: 0 1px 1px rgb(23 23 15 / 0.03);
+      --hos-shadow-md: 0 1px 2px rgb(23 23 15 / 0.05), 0 4px 12px rgb(23 23 15 / 0.07);
+      --hos-shadow-lg: 0 1px 2px rgb(23 23 15 / 0.06), 0 8px 24px rgb(23 23 15 / 0.1);
+      --hos-shadow-inset-top: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+
+    }
+  }
+
+  /* ===========================================================================
+   * DENSITY — control geometry only. Deliberately does NOT touch the type or
+   * spacing scales, so switching density can never reflow page-level layout.
+   * Scopes to any subtree: a compact <Table> inside a comfortable app is valid.
+   * ========================================================================= */
+  :root,
+  [data-density="default"] {
+    --hos-control-h-sm: 28px;
+    --hos-control-h-md: 32px;
+    --hos-control-h-lg: 38px;
+    --hos-control-px-sm: var(--hos-space-2);
+    --hos-control-px-md: var(--hos-space-3);
+    --hos-control-px-lg: var(--hos-space-4);
+    --hos-control-gap: var(--hos-space-1-5);
+    --hos-row-py: var(--hos-space-2);
+  }
+
+  [data-density="compact"] {
+    --hos-control-h-sm: 24px;
+    --hos-control-h-md: 28px;
+    --hos-control-h-lg: 32px;
+    --hos-control-px-sm: var(--hos-space-1-5);
+    --hos-control-px-md: var(--hos-space-2);
+    --hos-control-px-lg: var(--hos-space-3);
+    --hos-control-gap: var(--hos-space-1);
+    --hos-row-py: var(--hos-space-1);
+  }
+
+  [data-density="comfortable"] {
+    --hos-control-h-sm: 32px;
+    --hos-control-h-md: 38px;
+    --hos-control-h-lg: 44px;
+    --hos-control-px-sm: var(--hos-space-3);
+    --hos-control-px-md: var(--hos-space-4);
+    --hos-control-px-lg: var(--hos-space-5);
+    --hos-control-gap: var(--hos-space-2);
+    --hos-row-py: var(--hos-space-3);
+  }
+}
+

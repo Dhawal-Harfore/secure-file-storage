@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-hos-canvas="black">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vault</title>
+    <meta
+      name="description"
+      content="Encrypted file storage with per-user access policies, expiring shares and quality-tiered previews."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;550;600;650;680&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="vendor/hosanna/styles.css" />
+    <link rel="stylesheet" href="css/landing.css" />
+  </head>
+  <body>
+    <nav class="pv-nav" data-scrolled="false">
+      <a class="pv-brand" href="/">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5 19.5 5.4v5.9c0 4.7-3.2 8.4-7.5 10.2-4.3-1.8-7.5-5.5-7.5-10.2V5.4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <circle cx="12" cy="10.4" r="1.9" stroke="currentColor" stroke-width="1.6" />
+          <path d="M12 12.3v2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        Vault
+      </a>
+      <span class="pv-spacer"></span>
+      <a class="hos-button" data-variant="primary" data-hos-focus href="login.html">Sign in</a>
+    </nav>
+
+    <main>
+      <section class="pv-hero">
+        <svg class="pv-spotlight" viewBox="0 0 3787 2842" fill="none" aria-hidden="true">
+          <g filter="url(#pv-spot-blur)">
+            <ellipse cx="1924.71" cy="273.501" rx="1924.71" ry="273.501" transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3631.88 2291.09)" fill="var(--pv-spot-fill)" fill-opacity="0.16" />
+          </g>
+          <defs>
+            <filter id="pv-spot-blur" x="0.86" y="0.839" width="3785.16" height="2840.26" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="151" />
+            </filter>
+          </defs>
+        </svg>
+
+        <div class="pv-motes" aria-hidden="true"></div>
+
+        <span class="pv-mark pv-rise" aria-hidden="true">
+          <svg width="66" height="66" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2.5 19.5 5.4v5.9c0 4.7-3.2 8.4-7.5 10.2-4.3-1.8-7.5-5.5-7.5-10.2V5.4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+            <circle cx="12" cy="10.4" r="1.9" stroke="currentColor" stroke-width="1.3" />
+            <path d="M12 12.3v2.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          </svg>
+        </span>
+
+        <p class="pv-eyebrow tnum pv-rise" style="animation-delay: 0.06s">
+          AES-256-GCM &middot; POLICY-BASED ACCESS
+        </p>
+
+        <h1 class="pv-rise" style="animation-delay: 0.12s">
+          Encrypted at rest.<br />
+          Shared on your terms.
+        </h1>
+
+        <p class="pv-sub pv-rise" style="animation-delay: 0.18s">
+          Vault encrypts every file with AES-256-GCM before it touches disk. A policy engine
+          decides who can view, download, edit or share it, at what quality, and for how long.
+        </p>
+
+        <div class="pv-cta-row pv-rise" style="animation-delay: 0.24s">
+          <a class="hos-button pv-cta" data-variant="primary" data-size="lg" data-hos-focus href="login.html">Sign in</a>
+          <a class="hos-button pv-cta pv-cta-ghost" data-variant="ghost" data-size="lg" data-hos-focus href="#stage">See it work</a>
+        </div>
+
+        <p class="pv-fine pv-rise" style="animation-delay: 0.32s">
+          Single-use sign-in links &middot; No passwords stored &middot; Self-hosted, encrypted at rest
+        </p>
+
+        <div class="pv-stage pv-rise" id="stage" style="animation-delay: 0.28s">
+          <div class="pv-win" aria-hidden="true">
+            <div class="pv-win-bar">
+              <span class="pv-win-brand">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2.5 19.5 5.4v5.9c0 4.7-3.2 8.4-7.5 10.2-4.3-1.8-7.5-5.5-7.5-10.2V5.4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                  <circle cx="12" cy="10.4" r="1.7" stroke="currentColor" stroke-width="1.8" />
+                </svg>
+                Vault
+              </span>
+              <span class="pv-win-search">
+                <span>Search files</span>
+                <span class="hos-kbd">/</span>
+              </span>
+              <span class="pv-win-cmd">
+                Commands <span class="hos-kbd">&#8984;</span><span class="hos-kbd">K</span>
+              </span>
+            </div>
+
+            <div class="pv-win-body">
+              <div class="pv-win-rail">
+                <span class="pv-win-navitem" data-on="true">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h3l2 2.5h6A2.5 2.5 0 0 1 20 9v8.5A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                  Files
+                </span>
+                <span class="pv-win-navitem">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 13.5 15 10m-6 .5L15 7M7 12a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0m15-6a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0m0 12a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                  Shares
+                </span>
+                <span class="pv-win-navitem">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.5-6 5 12L17 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Activity
+                </span>
+                <span class="pv-win-raildiv"></span>
+                <span class="pv-win-folder" data-on="true">All files<span class="tnum">6</span></span>
+                <span class="pv-win-folder">Shared with me<span class="tnum">3</span></span>
+                <span class="pv-win-folder">My uploads<span class="tnum">2</span></span>
+                <span class="pv-win-folder">Expiring<span class="tnum">1</span></span>
+              </div>
+
+              <div class="pv-win-list"></div>
+            </div>
+
+            <div class="pv-pal">
+              <div class="pv-pal-input">
+                <span class="pv-pal-typed"></span><span class="pv-caret"></span
+                ><span class="pv-pal-ph">Type a command&hellip;</span>
+              </div>
+              <div class="pv-pal-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="js/pages/landing.js"></script>
+  </body>
+</html>
