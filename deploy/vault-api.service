@@ -1,7 +1,7 @@
 [Unit]
 Description=Vault API
-After=network-online.target
-Wants=network-online.target
+After=network-online.target mysqld.service
+Wants=network-online.target mysqld.service
 
 [Service]
 Type=simple
