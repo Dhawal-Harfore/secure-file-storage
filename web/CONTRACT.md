@@ -11,7 +11,7 @@ audit logging pipeline and the audit log viewing interface.
 Nandishwar Singh (26MCA0137), data plane:
 magic-link auth (token issue, verification, expiry) and Resend email delivery,
 storage service with chunked upload and download, quality rendition pipeline,
-share-link lifecycle, browser UI, deployment on Nginx with TLS.
+share-link lifecycle, browser UI, deployment on Caddy with TLS.
 
 Token handling splits at `/auth/verify`. I validate the token, Spring Security takes over
 and owns the session from there.
@@ -146,7 +146,7 @@ A share is live when `revokedAt` is null, `expiresAt` is null or in the future, 
 
 ## Endpoints
 
-Everything under `/api`, same origin. Nginx proxies it to Spring Boot, so there is no CORS
+Everything under `/api`, same origin. Caddy proxies it to Spring Boot, so there is no CORS
 setup. Session is an HttpOnly, Secure, SameSite=Lax cookie.
 
 ### Auth
