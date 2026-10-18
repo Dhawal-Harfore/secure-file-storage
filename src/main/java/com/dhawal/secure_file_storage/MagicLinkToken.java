@@ -1,19 +1,19 @@
 package com.dhawal.secure_file_storage;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MagicLinkToken {
 
     private final String tokenHash;
     private final String email;
     private final Instant expiresAt;
-    private boolean used;
+    private final AtomicBoolean used = new AtomicBoolean(false);
 
     public MagicLinkToken(String tokenHash, String email, Instant expiresAt) {
         this.tokenHash = tokenHash;
         this.email = email;
         this.expiresAt = expiresAt;
-        this.used = false;
     }
 
     public String getTokenHash() {
@@ -29,10 +29,10 @@ public class MagicLinkToken {
     }
 
     public boolean isUsed() {
-        return used;
+        return used.get();
     }
 
-    public void markUsed() {
-        this.used = true;
+    public boolean markUsed() {
+        return used.compareAndSet(false, true);
     }
 }
