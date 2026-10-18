@@ -7,6 +7,8 @@ Wants=network-online.target
 Type=simple
 User=root
 WorkingDirectory=/opt/vault
+StateDirectory=vault
+StateDirectoryMode=0700
 EnvironmentFile=-/etc/vault/vault.env
 ExecStart=/usr/lib/jvm/jre-25/bin/java -jar /opt/vault/vault-api.jar --server.port=8082
 Restart=on-failure

@@ -42,8 +42,13 @@ jobs:
           java-version: "25"
           cache: maven
 
-      - name: Build API
-        run: sh mvnw -B -ntp -DskipTests package
+      - name: Install ffmpeg and Ghostscript for the rendition tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg ghostscript
+
+      - name: Build and test API
+        run: sh mvnw -B -ntp package
 
       - name: Check frontend
         run: node web/test/deck-conformance.mjs
