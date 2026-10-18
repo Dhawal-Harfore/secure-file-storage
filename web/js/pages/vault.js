@@ -443,7 +443,7 @@ async function shareDialog(file) {
     title: `Share ${file.name}`,
     description: "Anyone with the link can open it at the level you pick. You can revoke it any time.",
     size: "md",
-    body: [existing, h("hr", { class: "hos-separator" }), form],
+    body: [existing, form],
     footer: [button("Done", { variant: "ghost", onclick: () => dialog.close() }), create],
   });
 

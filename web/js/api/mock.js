@@ -341,7 +341,7 @@ export const mockApi = {
         file: { id: f.id, kind: kindOf(f.mime) },
         subjectId: `share:${token}`,
         level: s.accessLevel,
-        policy: f.policy,
+        policy: { ...f.policy, download: s.actions.includes("download") },
         share: s,
       });
       if (permit.actions.length === 0) {
@@ -368,7 +368,7 @@ export const mockApi = {
       const f = db.files.find((x) => x.id === s.fileId);
       if (!f) return null;
       const meta = project(f, { id: `share:${token}` });
-      const permit = evaluate({ file: { id: f.id, kind: meta.kind }, subjectId: `share:${token}`, level: s.accessLevel, policy: f.policy, share: s });
+      const permit = evaluate({ file: { id: f.id, kind: meta.kind }, subjectId: `share:${token}`, level: s.accessLevel, policy: { ...f.policy, download: s.actions.includes("download") }, share: s });
       const served = servedFor({ ...meta, permit }, tier);
       return served === "metadata" ? null : placeholder(meta, served);
     },
