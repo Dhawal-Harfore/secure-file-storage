@@ -25,15 +25,27 @@ public class SecurityConfig {
                     "/js/**",
                     "/vendor/**",
                     "/api/auth/magic-link",
-                    "/api/auth/verify"
+                    "/api/auth/verify",
+                    "/api/auth/session",
+                    "/api/auth/logout"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, e) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write(
+                        "{\"error\":{\"code\":\"unauthenticated\","
+                        + "\"message\":\"Your session has ended. Sign in again.\",\"reason\":\"\"}}");
+                })
+            )
             .csrf(csrf -> csrf.ignoringRequestMatchers(
                 "/api/auth/magic-link",
-                "/api/auth/verify"
+                "/api/auth/verify",
+                "/api/auth/logout"
             ));
 
         return http.build();
