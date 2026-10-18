@@ -1,10 +1,15 @@
 package com.dhawal.secure_file_storage.controller;
 
-import com.dhawal.secure_file_storage.MagicLinkService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dhawal.secure_file_storage.MagicLinkService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,27 +27,59 @@ public class AuthController {
 
         String email = request.get("email");
 
-        magicLinkService.createToken(email);
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("ok", false));
+        }
 
-        System.out.println("Magic-link requested for: " + email);
+        String token = magicLinkService.createToken(email);
+
+        // TEMPORARY: local testing only.
+        // Remove before production deployment.
+        System.out.println("Magic-link token: " + token);
 
         return ResponseEntity.accepted()
                 .body(Map.of("ok", true));
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<Map<String, String>> verifyMagicLink(
+    public ResponseEntity<?> verifyMagicLink(
             @RequestBody Map<String, String> request) {
 
         String token = request.get("token");
 
-        String email = magicLinkService.verifyToken(token);
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", Map.of(
+                            "code", "invalid_token",
+                            "message", "Token is required.",
+                            "reason", "Provide a valid magic-link token."
+                    )));
+        }
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "email", email,
-                        "message", "Magic-link verified successfully"
-                )
-        );
+        try {
+            String email = magicLinkService.verifyToken(token);
+
+            return ResponseEntity.ok(Map.of(
+                    "email", email,
+                    "message", "Magic-link verified successfully"
+            ));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", Map.of(
+                            "code", "invalid_token",
+                            "message", "Invalid magic-link token.",
+                            "reason", "Request a new magic link."
+                    )));
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.GONE)
+                    .body(Map.of("error", Map.of(
+                            "code", "token_gone",
+                            "message", "Token expired or already used.",
+                            "reason", "Request a new magic link."
+                    )));
+        }
     }
 }
