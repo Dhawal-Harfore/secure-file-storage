@@ -185,6 +185,7 @@ map out the policy by watching which requests fail.
 | Method | Path                             | Body        | Returns |
 |--------|----------------------------------|-------------|---------|
 | POST   | /files/initiate                  | `{name,mime,size}` | `{uploadId,chunkSize,received}` |
+| GET    | /files/{uploadId}                |             | `{uploadId,chunkSize,received}` |
 | PUT    | /files/{uploadId}/chunk/{index}  | raw bytes   | `{received}` |
 | POST   | /files/{uploadId}/complete       | `{sha256}`  | `FileMeta` |
 | DELETE | /files/{uploadId}                |             | 204 |
@@ -192,6 +193,73 @@ map out the policy by watching which requests fail.
 `received` holds the chunk indices already stored, so an interrupted upload can resume.
 `chunkSize` is chosen by the server so it can be tuned without a client release.
 Renditions are generated at upload time and stored encrypted.
+
+## Data plane details (proposed, needs Dhawal's ok)
+
+Everything in this section is built and tested on my side. Dhawal, flag anything you want
+changed before you build against it.
+
+### Uploads
+
+- `uploadId` is `up_` plus 20 base32 characters. `fileId` is `f_` plus 16 hex characters,
+  assigned at complete. Upload routes only match `up_…` and file routes only match `f_…`, so
+  `DELETE /files/{uploadId}` and `DELETE /files/{id}` don't collide.
+- `chunkSize` is 8 MiB. Every chunk except the last must be exactly that size. Chunks can
+  arrive in any order and can be sent again. `GET /files/{uploadId}` lets a reloaded page
+  find out what it already sent.
+- Uploads are capped at 2 GiB (413). A user can have 4 unfinished uploads at once (429).
+  An upload with no new chunk for 24 hours is dropped.
+- Staged chunks are encrypted under `kh_<upload>_staging`, and that key is destroyed on
+  complete, abort or expiry. Nothing is written to disk in plaintext. The one exception is a
+  rendition job's working copy, which sits in a 0700 directory only while the job runs.
+- `complete` checks the SHA-256 of the whole file. On a mismatch the upload is discarded and
+  the client starts over. Otherwise the original is encrypted under `kh_<file>_original`,
+  added to the catalog, and `FileMeta` comes back with `renditions: ["original"]`.
+
+### Renditions
+
+Made in the background after complete, one file at a time, at low CPU priority, so a big
+video never holds up a request. `renditions` grows as each one is stored. `lowest` comes
+first because it takes about a second.
+
+| Kind  | reduced | lowest |
+|-------|---------|--------|
+| video | WebM, VP9 CRF 32 and Opus 96k, fits 720x540, metadata stripped | JPEG frame at 1s, 480 wide |
+| image | JPEG, fits 1280x1280, transparency flattened onto white | JPEG, fits 480x480 |
+| pdf   | image-only PDF at 72 dpi, no selectable text | JPEG of page 1 at 50 dpi |
+| other | none | none |
+
+Each is encrypted under `kh_<file>_<tier>`. A rendition that fails is skipped. A job that
+keeps crashing gives up after 3 attempts across restarts. On the VPS, VP9 at these settings
+took 30 s of CPU for 15 s of 1080p HEVC.
+
+### Content
+
+- `GET /files/{id}/content?tier=` serves the best rendition that exists at or below the
+  lower of `tier` and `permit.qualityTier`, and names it in `X-Quality-Tier`. 404 when none
+  exists yet. 403 `denied` when the permit is `metadata` or has no key handle.
+- One `Range: bytes=` range per request is supported (206, 416), so video can seek.
+- Originals a browser could run (HTML, SVG, anything that isn't image, video, audio, PDF or
+  plain text) go out as `application/octet-stream` attachments. Every content response has
+  `nosniff` and `Cache-Control: private, no-store`, and everything except PDF gets a sandbox CSP.
+- A `view` audit event is recorded for each request that starts at byte 0, not for every
+  range request, so seeking through a video doesn't flood the log.
+- `GET /files/{id}/thumb` serves `lowest` whenever the permit allows any bytes.
+
+### What the data plane needs from the control plane
+
+Four Spring beans in `com.dhawal.secure_file_storage.controlplane`. Until all four exist the
+file routes return 503 `unavailable`.
+
+| Interface | Methods | Notes |
+|-----------|---------|-------|
+| `FileCipher` | `encrypt(keyHandle, out)`, `decrypt(keyHandle, channel, plaintextOffset)`, `destroy(keyHandle)` | AES-256-GCM. A handle's key is created on its first encrypt, and every encrypt call is an independent ciphertext. `decrypt` has to start at any plaintext offset without reading from the beginning, so the GCM needs to be in segments (say 64 KiB, each with its own nonce and tag). `destroy` shreds the key. |
+| `PermitService` | `evaluate(fileId, subjectId)` | Returns the `Permit` above. Empty `actions` means the file is hidden (404). |
+| `FileCatalog` | `add`, `find`, `addRendition` | Stores `StoredFile`, including each rendition's mime, plaintext size and key handle. |
+| `AuditLog` | `record(AuditEvent)` | Feeds the audit pipeline. |
+
+Spring Security's CSRF check covers `/api/files/**`, and the browser client doesn't send a
+token yet. Uploads from the UI need either the token or an exemption in `SecurityConfig`.
 
 ### Shares
 
@@ -219,12 +287,15 @@ rendition served, share created, share revoked, view counted) but does not rende
 
 | Status | Code            | Meaning |
 |--------|-----------------|---------|
+| 400    | invalid_upload, invalid_chunk, incomplete_upload, checksum_mismatch, invalid_tier, invalid_request | bad input, `message` says what |
 | 401    | unauthenticated | no or invalid session |
 | 403    | denied          | policy engine refused, `reason` says why |
 | 404    | not_found       | unknown, or hidden from this subject |
 | 410    | gone            | share expired, revoked, or out of views |
 | 413    | too_large       | over the upload cap |
-| 429    | rate_limited    | magic-link throttle |
+| 429    | rate_limited    | magic-link throttle, or too many unfinished uploads |
+| 503    | unavailable     | a control-plane piece isn't wired in yet |
+| 507    | insufficient_storage | the server has no room for the file |
 
 403 and 410 stay separate. One means the user lacks access, the other means the link is
 finished. They read as different problems to whoever hit them.
@@ -233,6 +304,6 @@ finished. They read as different problems to whoever hit them.
 
 1. The audit screen. Slide 9 gives the log viewing interface to Dhawal, slide 7 marks all
    browser UI as mine. Needs one decision.
-2. `chunkSize`. Proposing 8 MiB.
-3. Maximum upload size. Undecided. The UI assumes 2 GiB for now.
+2. `chunkSize`. 8 MiB in the data plane proposal above, needs Dhawal's ok.
+3. Maximum upload size. 2 GiB in the data plane proposal above, needs Dhawal's ok.
 4. Whether `edit` covers rename only or replacing contents too. UI does rename.
