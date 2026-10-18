@@ -174,10 +174,14 @@ jobs:
 
       - name: Smoke test
         run: |
-          for i in $(seq 1 10); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://thecollege.cloud/ || true)
-            [ "$code" = "200" ] && echo "site up ($code)" && exit 0
-            sleep 6
-          done
-          echo "site did not return 200"
-          exit 1
+          expect() {
+            for i in $(seq 1 20); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" || true)
+              [ "$code" = "$2" ] && echo "$1 returned $code" && return 0
+              sleep 6
+            done
+            echo "$1 returned $code, expected $2"
+            return 1
+          }
+          expect https://thecollege.cloud/ 200
+          expect https://thecollege.cloud/api/auth/session 401
