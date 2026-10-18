@@ -51,7 +51,7 @@ jobs:
         run: sh mvnw -B -ntp package
 
       - name: Check frontend
-        run: node web/test/deck-conformance.mjs
+        run: for t in web/test/*.mjs; do node "$t"; done
 
       - name: Bundle
         run: |

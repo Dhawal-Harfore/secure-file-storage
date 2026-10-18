@@ -4,6 +4,10 @@ import { evaluate, kindOf } from "./mock-policy.js";
 const STORE_KEY = "vault.mock.v1";
 const CHUNK_SIZE = 8 * 1024 * 1024;
 const TIER_ORDER = ["metadata", "lowest", "reduced", "original"];
+const MAX_UPLOAD = 2 * 1024 ** 3;
+const KEEP_BYTES_UP_TO = 64 * 1024 * 1024;
+const blobs = new Map();
+const pendingBytes = new Map();
 
 const nowIso = () => new Date().toISOString();
 const rid = (p) => `${p}_${Math.random().toString(16).slice(2, 10)}`;
@@ -97,6 +101,32 @@ function project(f, subject = db.user) {
   };
 }
 
+function servedFor(meta, tier) {
+  const ceiling = meta.permit.qualityTier;
+  const asked = tier && TIER_ORDER.includes(tier) ? tier : ceiling;
+  return TIER_ORDER[Math.min(TIER_ORDER.indexOf(asked), TIER_ORDER.indexOf(ceiling))];
+}
+
+function placeholder(meta, tier) {
+  if (typeof document === "undefined") return null;
+  if (blobs.has(meta.id)) return blobs.get(meta.id);
+  if (meta.kind === "video" || meta.kind === "other") return null;
+  const canvas = document.createElement("canvas");
+  const wide = meta.kind === "image";
+  canvas.width = wide ? 960 : 620;
+  canvas.height = wide ? 600 : 820;
+  const g = canvas.getContext("2d");
+  g.fillStyle = meta.kind === "pdf" ? "#fbfbf9" : "#222c36";
+  g.fillRect(0, 0, canvas.width, canvas.height);
+  g.fillStyle = meta.kind === "pdf" ? "#17170f" : "#f1efe7";
+  g.font = "600 28px system-ui, sans-serif";
+  g.fillText(meta.name, 40, 80, canvas.width - 80);
+  g.font = "20px system-ui, sans-serif";
+  g.fillStyle = meta.kind === "pdf" ? "#54544c" : "#b0ada2";
+  g.fillText(`Sample ${tier} copy from the mock server`, 40, 120, canvas.width - 80);
+  return canvas.toDataURL("image/png");
+}
+
 function demand(meta, action) {
   if (!meta.permit.actions.includes(action)) {
     throw new ApiError(403, "denied", `You don't have permission to ${action} this file.`, meta.permit.reason);
@@ -156,53 +186,78 @@ export const mockApi = {
       return project(find(id)).permit;
     },
 
-    async content(id, tier) {
-      await latency();
-      requireSession();
-      const meta = project(find(id));
-      demand(meta, "view");
-      const asked = TIER_ORDER.indexOf(tier ?? meta.permit.qualityTier);
-      const served = TIER_ORDER[Math.min(asked, TIER_ORDER.indexOf(meta.permit.qualityTier))];
-      log("view", meta, served);
-      if (served === "metadata") {
-        throw new ApiError(403, "denied", "Only metadata is available to you for this file.", meta.permit.reason);
-      }
-      return { tier: served, keyHandle: meta.permit.keyHandle, url: null };
+    contentUrl(id, tier) {
+      const f = db.files.find((x) => x.id === id);
+      if (!f || !db.user) return null;
+      const meta = project(f);
+      const served = servedFor(meta, tier);
+      return served === "metadata" ? null : placeholder(meta, served);
+    },
+
+    thumbUrl(id) {
+      const f = db.files.find((x) => x.id === id);
+      if (!f || !db.user) return null;
+      const meta = project(f);
+      return meta.permit.qualityTier === "metadata" ? null : placeholder(meta, "lowest");
     },
 
     async initiate({ name, mime, size }) {
       await latency();
       requireSession();
+      if (size > MAX_UPLOAD) throw new ApiError(413, "too_large", "Files can be up to 2 GB.");
       const uploadId = rid("up");
       db.uploads[uploadId] = { name, mime, size, received: [] };
       save();
       return { uploadId, chunkSize: CHUNK_SIZE, received: [] };
     },
 
-    async putChunk(uploadId, index) {
+    async status(uploadId) {
+      await wait(60);
+      requireSession();
+      const up = db.uploads[uploadId];
+      if (!up) throw new ApiError(404, "not_found", "That upload no longer exists.");
+      return { uploadId, chunkSize: CHUNK_SIZE, received: [...up.received].sort((a, b) => a - b) };
+    },
+
+    async putChunk(uploadId, index, bytes, onProgress) {
       const up = db.uploads[uploadId];
       if (!up) throw new ApiError(404, "not_found", "This upload expired. Start again.");
-      await wait(90 + Math.random() * 120);
+      const steps = 4;
+      for (let i = 1; i <= steps; i++) {
+        await wait(40 + Math.random() * 60);
+        onProgress?.(Math.round(((bytes?.byteLength ?? 0) * i) / steps));
+      }
+      if (up.size <= KEEP_BYTES_UP_TO && bytes) {
+        if (!pendingBytes.has(uploadId)) pendingBytes.set(uploadId, []);
+        pendingBytes.get(uploadId)[index] = bytes.slice(0);
+      }
       if (!up.received.includes(index)) up.received.push(index);
       save();
       return { received: [...up.received] };
     },
 
-    async complete(uploadId) {
+    async complete(uploadId, sha256) {
       const up = db.uploads[uploadId];
       if (!up) throw new ApiError(404, "not_found", "This upload expired. Start again.");
+      if (!/^[0-9a-f]{64}$/.test(sha256 ?? "")) throw new ApiError(400, "invalid_upload", "Send the file's SHA-256.");
       await latency();
       const user = requireSession();
       const f = { id: rid("f"), name: up.name, mime: up.mime, size: up.size, ownerId: user.id, ownerEmail: user.email, createdAt: nowIso(), updatedAt: nowIso(), level: "owner", policy: {} };
+      const parts = pendingBytes.get(uploadId);
+      if (parts && typeof URL !== "undefined" && URL.createObjectURL) {
+        blobs.set(f.id, URL.createObjectURL(new Blob(parts, { type: up.mime })));
+      }
+      pendingBytes.delete(uploadId);
       db.files.unshift(f);
       delete db.uploads[uploadId];
       save();
       const meta = project(f);
-      log("edit", meta, "original");
+      log("upload", meta, "original");
       return meta;
     },
 
     async abort(uploadId) {
+      pendingBytes.delete(uploadId);
       delete db.uploads[uploadId];
       save();
     },
@@ -290,6 +345,9 @@ export const mockApi = {
         share: s,
       });
       if (permit.actions.length === 0) {
+        if (!permit.reason || permit.reason.startsWith("policy:")) {
+          throw new ApiError(404, "not_found", "This link doesn't exist.");
+        }
         const message = {
           revoked: "This link was revoked by its owner.",
           expired: "This link has expired.",
@@ -302,6 +360,17 @@ export const mockApi = {
       const meta = { ...project(f, { id: `share:${token}` }), permit };
       log("view", meta, permit.qualityTier, s.id);
       return { file: meta, permit, share: s };
+    },
+
+    publicContentUrl(token, tier) {
+      const s = db.shares.find((x) => x.token === token);
+      if (!s) return null;
+      const f = db.files.find((x) => x.id === s.fileId);
+      if (!f) return null;
+      const meta = project(f, { id: `share:${token}` });
+      const permit = evaluate({ file: { id: f.id, kind: meta.kind }, subjectId: `share:${token}`, level: s.accessLevel, policy: f.policy, share: s });
+      const served = servedFor({ ...meta, permit }, tier);
+      return served === "metadata" ? null : placeholder(meta, served);
     },
   },
 

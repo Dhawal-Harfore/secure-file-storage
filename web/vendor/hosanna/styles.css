@@ -738,6 +738,369 @@
 }
 
 
+/* styles/accents.css */
+/* Accent palettes.
+ *
+ * `blue` is the default and lives in the theme partials themselves, so nothing
+ * here is needed for it — an unset (or `blue`) `data-accent` simply inherits.
+ * Each accent below remaps only the nine accent-derived tokens; the neutrals,
+ * the danger/success/warning scales and `--hos-info` are deliberately untouched,
+ * since "info" is blue by convention regardless of what the product's accent is.
+ *
+ * The selector shape mirrors the theme handling in tokens.css: dark is the
+ * default, an explicit `data-theme` wins in both directions, and the
+ * media-query fallback covers the case where the user has pinned neither.
+ */
+@layer hosanna.tokens {
+
+  :root[data-accent="violet"],
+  [data-theme="dark"][data-accent="violet"] {
+    /* styles/_accent-violet-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #a78bfa;
+    --hos-accent-hover: #c4b5fd;
+    --hos-accent-active: #8b5cf6;
+    --hos-accent-subtle: #241c3a;
+    --hos-accent-fg: #c4b5fd;
+
+    --hos-fg-on-accent: #1b1033;
+    --hos-border-accent: rgb(167 139 250 / 0.45);
+    --hos-ring: #a78bfa;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #241c3a;
+
+
+  }
+
+  [data-theme="light"][data-accent="violet"] {
+    /* styles/_accent-violet-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #7c3aed;
+    --hos-accent-hover: #6d28d9;
+    --hos-accent-active: #5b21b6;
+    --hos-accent-subtle: #ede9fe;
+    --hos-accent-fg: #6d28d9;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(124 58 237 / 0.45);
+    --hos-ring: #7c3aed;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #ede9fe;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="violet"] {
+      /* styles/_accent-violet-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #7c3aed;
+      --hos-accent-hover: #6d28d9;
+      --hos-accent-active: #5b21b6;
+      --hos-accent-subtle: #ede9fe;
+      --hos-accent-fg: #6d28d9;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(124 58 237 / 0.45);
+      --hos-ring: #7c3aed;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #ede9fe;
+
+
+    }
+  }
+
+  :root[data-accent="teal"],
+  [data-theme="dark"][data-accent="teal"] {
+    /* styles/_accent-teal-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #2dd4bf;
+    --hos-accent-hover: #5eead4;
+    --hos-accent-active: #14b8a6;
+    --hos-accent-subtle: #102b28;
+    --hos-accent-fg: #5eead4;
+
+    --hos-fg-on-accent: #042825;
+    --hos-border-accent: rgb(45 212 191 / 0.45);
+    --hos-ring: #2dd4bf;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #102b28;
+
+
+  }
+
+  [data-theme="light"][data-accent="teal"] {
+    /* styles/_accent-teal-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #0d9488;
+    --hos-accent-hover: #0f766e;
+    --hos-accent-active: #115e59;
+    --hos-accent-subtle: #ccfbf1;
+    --hos-accent-fg: #0f766e;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(13 148 136 / 0.45);
+    --hos-ring: #0d9488;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #ccfbf1;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="teal"] {
+      /* styles/_accent-teal-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #0d9488;
+      --hos-accent-hover: #0f766e;
+      --hos-accent-active: #115e59;
+      --hos-accent-subtle: #ccfbf1;
+      --hos-accent-fg: #0f766e;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(13 148 136 / 0.45);
+      --hos-ring: #0d9488;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #ccfbf1;
+
+
+    }
+  }
+
+  :root[data-accent="green"],
+  [data-theme="dark"][data-accent="green"] {
+    /* styles/_accent-green-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #4ade80;
+    --hos-accent-hover: #86efac;
+    --hos-accent-active: #22c55e;
+    --hos-accent-subtle: #14291c;
+    --hos-accent-fg: #86efac;
+
+    --hos-fg-on-accent: #06280f;
+    --hos-border-accent: rgb(74 222 128 / 0.45);
+    --hos-ring: #4ade80;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #14291c;
+
+
+  }
+
+  [data-theme="light"][data-accent="green"] {
+    /* styles/_accent-green-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #16a34a;
+    --hos-accent-hover: #15803d;
+    --hos-accent-active: #166534;
+    --hos-accent-subtle: #dcfce7;
+    --hos-accent-fg: #15803d;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(22 163 74 / 0.45);
+    --hos-ring: #16a34a;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #dcfce7;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="green"] {
+      /* styles/_accent-green-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #16a34a;
+      --hos-accent-hover: #15803d;
+      --hos-accent-active: #166534;
+      --hos-accent-subtle: #dcfce7;
+      --hos-accent-fg: #15803d;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(22 163 74 / 0.45);
+      --hos-ring: #16a34a;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #dcfce7;
+
+
+    }
+  }
+
+  :root[data-accent="amber"],
+  [data-theme="dark"][data-accent="amber"] {
+    /* styles/_accent-amber-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #fbbf24;
+    --hos-accent-hover: #fcd34d;
+    --hos-accent-active: #f59e0b;
+    --hos-accent-subtle: #2c2312;
+    --hos-accent-fg: #fcd34d;
+
+    --hos-fg-on-accent: #2b1d02;
+    --hos-border-accent: rgb(251 191 36 / 0.45);
+    --hos-ring: #fbbf24;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #2c2312;
+
+
+  }
+
+  [data-theme="light"][data-accent="amber"] {
+    /* styles/_accent-amber-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #b45309;
+    --hos-accent-hover: #92400e;
+    --hos-accent-active: #78350f;
+    --hos-accent-subtle: #fef3c7;
+    --hos-accent-fg: #92400e;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(180 83 9 / 0.45);
+    --hos-ring: #b45309;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #fef3c7;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="amber"] {
+      /* styles/_accent-amber-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #b45309;
+      --hos-accent-hover: #92400e;
+      --hos-accent-active: #78350f;
+      --hos-accent-subtle: #fef3c7;
+      --hos-accent-fg: #92400e;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(180 83 9 / 0.45);
+      --hos-ring: #b45309;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #fef3c7;
+
+
+    }
+  }
+
+  :root[data-accent="rose"],
+  [data-theme="dark"][data-accent="rose"] {
+    /* styles/_accent-rose-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #fb7185;
+    --hos-accent-hover: #fda4af;
+    --hos-accent-active: #f43f5e;
+    --hos-accent-subtle: #2e1820;
+    --hos-accent-fg: #fda4af;
+
+    --hos-fg-on-accent: #330711;
+    --hos-border-accent: rgb(251 113 133 / 0.45);
+    --hos-ring: #fb7185;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #2e1820;
+
+
+  }
+
+  [data-theme="light"][data-accent="rose"] {
+    /* styles/_accent-rose-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #e11d48;
+    --hos-accent-hover: #be123c;
+    --hos-accent-active: #9f1239;
+    --hos-accent-subtle: #ffe4e6;
+    --hos-accent-fg: #be123c;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(225 29 72 / 0.45);
+    --hos-ring: #e11d48;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #ffe4e6;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="rose"] {
+      /* styles/_accent-rose-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #e11d48;
+      --hos-accent-hover: #be123c;
+      --hos-accent-active: #9f1239;
+      --hos-accent-subtle: #ffe4e6;
+      --hos-accent-fg: #be123c;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(225 29 72 / 0.45);
+      --hos-ring: #e11d48;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #ffe4e6;
+
+
+    }
+  }
+
+}
+
+
 /* styles/base.css */
 @layer hosanna.base {
   html {
@@ -830,7 +1193,14 @@
    * would strand the node in the DOM forever.
    *
    * Keyframes are global regardless of which file declares them, so they live
-   * here rather than being redefined per component. */
+   * here rather than being redefined per component.
+   *
+   * Every *exit* animation must be declared `forwards`. Without a fill mode the
+   * element reverts to its base style the instant the animation ends — fully
+   * opaque again — and it stays that way until `animationend` reaches React and
+   * React unmounts it, a frame or more later. The result is that every overlay
+   * flashes back to full brightness as the last thing it does before
+   * disappearing. `forwards` holds the final keyframe until the node is gone. */
 
   /* Anchored panels: popover, menu, select, combobox. Scales from
    * --hos-transform-origin, which the positioner sets to the anchor's edge. */
@@ -1191,17 +1561,30 @@
 /* components/icon-button/icon-button.css */
 @layer hosanna.components {
   /* Square rather than pill-shaped: width is locked to the control height so a
-   * row of icon buttons lines up on a grid regardless of density. */
-  .hos-icon-button {
+   * row of icon buttons lines up on a grid regardless of density.
+   *
+   * Doubled class on purpose. `.hos-button[data-size="sm"]` sets the horizontal
+   * padding a *text* button needs, and at one class this rule lost to it — the
+   * content box collapsed to 6px around a 14px icon, and `.hos-button__label`,
+   * which clips so long labels ellipsise, cut the icon in half. Every sm and lg
+   * icon button rendered as a fragment of its glyph; at md the two rules tied
+   * and source order happened to save it. */
+  .hos-button.hos-icon-button {
     width: var(--hos-icon-button-md);
     padding-inline: 0;
   }
 
-  .hos-icon-button[data-size="sm"] {
+  /* Nothing here to ellipsise, and clipping is what turned the bug above into
+   * an invisible control rather than a cramped one. */
+  .hos-icon-button .hos-button__label {
+    overflow: visible;
+  }
+
+  .hos-button.hos-icon-button[data-size="sm"] {
     width: var(--hos-icon-button-sm);
   }
 
-  .hos-icon-button[data-size="lg"] {
+  .hos-button.hos-icon-button[data-size="lg"] {
     width: var(--hos-icon-button-lg);
   }
 
@@ -1834,7 +2217,7 @@
   }
 
   .hos-select__list[data-state="closed"] {
-    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in) forwards;
   }
 
   .hos-select__item {
@@ -1859,10 +2242,10 @@
     padding-block: var(--hos-space-1);
   }
 
-  /* Hover and keyboard focus produce the same highlight — there is only ever
-   * one "active" option, whether the user got there with a mouse or the arrows. */
-  .hos-select__item:hover:not([data-disabled]),
-  .hos-select__item:focus-visible,
+  /* Focus alone draws the highlight; the pointer gets one by *taking* focus
+   * (`focusOnHover` in the roving-focus hook). Lighting `:hover` as well would
+   * put two rows up at once the moment the two diverge — hover following the
+   * cursor, focus staying on the row the arrows left behind. */
   .hos-select__item:focus {
     background-color: var(--hos-surface-hover);
   }
@@ -2458,6 +2841,24 @@
 }
 
 
+/* components/gradient/gradient.css */
+@layer hosanna.components {
+  /* Fills its container and nothing more. Give the parent a height — a hero, a
+   * card, a `position: absolute; inset: 0` backdrop — and this follows it. The
+   * drawing buffer is set in JS and does not affect layout, so the element's
+   * own ResizeObserver cannot feed back into itself. */
+  .hos-gradient {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* It is decoration: never let it eat a click meant for the content above. */
+    pointer-events: none;
+    /* The canvas is opaque, and its edges are the container's edges. */
+    background-repeat: no-repeat;
+  }
+}
+
+
 /* components/grid/grid.css */
 @layer hosanna.components {
   .hos-grid {
@@ -2668,6 +3069,7 @@
   }
 
   .hos-tabs__list {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--hos-space-1);
@@ -2743,23 +3145,43 @@
     border-radius: var(--hos-radius-sm);
   }
 
-  /* The active indicator is a pseudo-element sitting on the list's border, so
-   * it overlaps the 1px rule exactly instead of stacking a second line on it. */
-  .hos-tabs__tab[data-variant="line"]::after {
+  /* The active indicator belongs to the list, not to each tab: one line that
+   * slides to the tab you clicked, rather than one line per tab scaling out
+   * here while another scales in over there. It sits on the list's border so
+   * it overlaps the 1px rule exactly instead of stacking a second line on it.
+   *
+   * TabList writes the two custom properties; `data-indicator` marks that they
+   * hold a real measurement, and `data-animate` that the first one has been
+   * taken and the indicator may now travel. */
+  .hos-tabs__list[data-variant="line"]::after {
     content: "";
     position: absolute;
-    inset-inline: 0;
-    bottom: -1px;
+    pointer-events: none;
+    opacity: 0;
+
+    /* Physical `left`/`bottom` on purpose. The offsets come from offsetLeft
+     * and offsetTop, which are physical, so a logical inset would anchor the
+     * indicator to the far edge under RTL and translate it off the list. */
+    left: 0;
+    bottom: calc(var(--hos-border-width) * -1);
+    width: var(--hos-tabs-indicator-size, 0px);
     height: 2px;
+    translate: var(--hos-tabs-indicator-pos, 0px) 0;
+
     background-color: var(--hos-accent);
     border-radius: var(--hos-radius-full) var(--hos-radius-full) 0 0;
-
-    scale: 0 1;
-    transition: scale var(--hos-dur-base) var(--hos-ease-out);
   }
 
-  .hos-tabs__tab[data-variant="line"][data-selected]::after {
-    scale: 1 1;
+  .hos-tabs__list[data-variant="line"][data-indicator]::after {
+    opacity: 1;
+  }
+
+  /* Only the travel is animated. Duration comes from a token, which the
+   * reduced-motion block in base.css collapses to 1ms. */
+  .hos-tabs__list[data-variant="line"][data-animate]::after {
+    transition:
+      translate var(--hos-dur-base) var(--hos-ease-out),
+      width var(--hos-dur-base) var(--hos-ease-out);
   }
 
   .hos-tabs__list[data-orientation="vertical"] .hos-tabs__tab[data-variant="line"] {
@@ -2767,19 +3189,21 @@
     padding-inline: var(--hos-space-3);
   }
 
-  .hos-tabs__list[data-orientation="vertical"]
-    .hos-tabs__tab[data-variant="line"]::after {
-    inset-inline: auto -1px;
-    inset-block: 0;
+  .hos-tabs__list[data-variant="line"][data-orientation="vertical"]::after {
+    left: auto;
+    top: 0;
+    bottom: auto;
+    inset-inline-end: calc(var(--hos-border-width) * -1);
     width: 2px;
-    height: auto;
-    scale: 1 0;
+    height: var(--hos-tabs-indicator-size, 0px);
+    translate: 0 var(--hos-tabs-indicator-pos, 0px);
     border-radius: var(--hos-radius-full) 0 0 var(--hos-radius-full);
   }
 
-  .hos-tabs__list[data-orientation="vertical"]
-    .hos-tabs__tab[data-variant="line"][data-selected]::after {
-    scale: 1 1;
+  .hos-tabs__list[data-variant="line"][data-orientation="vertical"][data-animate]::after {
+    transition:
+      translate var(--hos-dur-base) var(--hos-ease-out),
+      height var(--hos-dur-base) var(--hos-ease-out);
   }
 
   .hos-tabs__tab[data-variant="solid"] {
@@ -3817,35 +4241,30 @@
     font-size: var(--hos-text-base);
     line-height: var(--hos-text-base-lh);
 
-    /* Declared once per tone, then read by the icon, border and background —
-     * one place to change rather than three rules per tone. */
+    /* Declared once per tone, then read by the icon and background — one place
+     * to change rather than a rule per tone per property. */
     --hos-alert-fg: var(--hos-info-fg);
     --hos-alert-bg: var(--hos-info-subtle);
-    --hos-alert-border: var(--hos-info);
   }
 
   .hos-alert[data-tone="success"] {
     --hos-alert-fg: var(--hos-success-fg);
     --hos-alert-bg: var(--hos-success-subtle);
-    --hos-alert-border: var(--hos-success);
   }
 
   .hos-alert[data-tone="warning"] {
     --hos-alert-fg: var(--hos-warning-fg);
     --hos-alert-bg: var(--hos-warning-subtle);
-    --hos-alert-border: var(--hos-warning);
   }
 
   .hos-alert[data-tone="danger"] {
     --hos-alert-fg: var(--hos-danger-fg);
     --hos-alert-bg: var(--hos-danger-subtle);
-    --hos-alert-border: var(--hos-danger);
   }
 
   .hos-alert[data-tone="neutral"] {
     --hos-alert-fg: var(--hos-fg-muted);
     --hos-alert-bg: var(--hos-bg-sunken);
-    --hos-alert-border: var(--hos-border);
   }
 
   .hos-alert[data-variant="subtle"] {
@@ -3857,12 +4276,6 @@
     background-color: var(--hos-surface);
     border-color: var(--hos-border);
     color: var(--hos-fg);
-  }
-
-  /* A coloured rule down the leading edge carries the tone even where the
-   * tinted background is too faint to read — and survives forced-colors mode. */
-  .hos-alert[data-variant="outline"] {
-    border-inline-start: 3px solid var(--hos-alert-border);
   }
 
   .hos-alert__icon {
@@ -3942,7 +4355,7 @@
   }
 
   .hos-dialog__backdrop[data-state="closed"] {
-    animation: hos-fade-out var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-fade-out var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
 
   .hos-dialog {
@@ -3982,7 +4395,7 @@
   }
 
   .hos-dialog[data-state="closed"] {
-    animation: hos-dialog-out var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-dialog-out var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
 
   .hos-dialog__header {
@@ -4036,10 +4449,6 @@
     color: var(--hos-fg-muted);
   }
 
-  .hos-dialog__header + .hos-dialog__footer {
-    padding-top: 0;
-  }
-
   .hos-dialog__footer {
     display: flex;
     align-items: center;
@@ -4073,7 +4482,7 @@
     }
 
     .hos-dialog[data-state="closed"] {
-      animation: hos-slide-out-bottom var(--hos-dur-fast) var(--hos-ease-in);
+      animation: hos-slide-out-bottom var(--hos-dur-fast) var(--hos-ease-in) forwards;
     }
 
     .hos-dialog__footer {
@@ -4128,7 +4537,7 @@
   }
 
   .hos-drawer__backdrop[data-state="closed"] {
-    animation: hos-fade-out var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-fade-out var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
 
   .hos-drawer {
@@ -4217,25 +4626,25 @@
     animation: hos-slide-in-right var(--hos-dur-base) var(--hos-ease-out);
   }
   .hos-drawer[data-side="right"][data-state="closed"] {
-    animation: hos-slide-out-right var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-slide-out-right var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
   .hos-drawer[data-side="left"][data-state="open"] {
     animation: hos-slide-in-left var(--hos-dur-base) var(--hos-ease-out);
   }
   .hos-drawer[data-side="left"][data-state="closed"] {
-    animation: hos-slide-out-left var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-slide-out-left var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
   .hos-drawer[data-side="bottom"][data-state="open"] {
     animation: hos-slide-in-bottom var(--hos-dur-base) var(--hos-ease-out);
   }
   .hos-drawer[data-side="bottom"][data-state="closed"] {
-    animation: hos-slide-out-bottom var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-slide-out-bottom var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
   .hos-drawer[data-side="top"][data-state="open"] {
     animation: hos-slide-in-top var(--hos-dur-base) var(--hos-ease-out);
   }
   .hos-drawer[data-side="top"][data-state="closed"] {
-    animation: hos-slide-out-top var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-slide-out-top var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
 
   /* --- content ------------------------------------------------------------- */
@@ -4331,7 +4740,7 @@
   }
 
   .hos-menu[data-state="closed"] {
-    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in) forwards;
   }
 
   .hos-menu__item {
@@ -4351,11 +4760,11 @@
     transition: background-color var(--hos-dur-instant) var(--hos-ease-out);
   }
 
-  /* Hover and keyboard focus produce one shared highlight — there is only ever
-   * a single active item, however the user got to it. */
-  .hos-menu__item:hover:not([data-disabled]),
-  .hos-menu__item:focus,
-  .hos-menu__item:focus-visible {
+  /* Focus alone draws the highlight; the pointer gets one by *taking* focus
+   * (`focusOnHover` in the roving-focus hook). Lighting `:hover` as well would
+   * put two rows up at once the moment the two diverge — hover following the
+   * cursor, focus staying on the row the arrows left behind. */
+  .hos-menu__item:focus {
     background-color: var(--hos-surface-hover);
   }
 
@@ -4363,7 +4772,6 @@
     color: var(--hos-danger-fg);
   }
 
-  .hos-menu__item[data-destructive]:hover:not([data-disabled]),
   .hos-menu__item[data-destructive]:focus {
     background-color: var(--hos-danger-subtle);
   }
@@ -4469,7 +4877,7 @@
   }
 
   .hos-popover[data-state="closed"] {
-    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in) forwards;
   }
 
   /* A rotated square peeking out from under the panel. Two of its four borders
@@ -4593,7 +5001,7 @@
   }
 
   .hos-toast[data-state="closed"] {
-    animation: hos-toast-out var(--hos-dur-fast) var(--hos-ease-in);
+    animation: hos-toast-out var(--hos-dur-fast) var(--hos-ease-in) forwards;
   }
 
   /* Toasts at the top of the screen should arrive from above, not below. */
@@ -4716,7 +5124,7 @@
   }
 
   .hos-tooltip[data-state="closed"] {
-    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in);
+    animation: hos-pop-out var(--hos-dur-instant) var(--hos-ease-in) forwards;
   }
 
   .hos-tooltip__arrow {

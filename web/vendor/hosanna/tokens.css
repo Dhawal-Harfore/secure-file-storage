@@ -633,3 +633,366 @@
   }
 }
 
+
+/* styles/accents.css */
+/* Accent palettes.
+ *
+ * `blue` is the default and lives in the theme partials themselves, so nothing
+ * here is needed for it — an unset (or `blue`) `data-accent` simply inherits.
+ * Each accent below remaps only the nine accent-derived tokens; the neutrals,
+ * the danger/success/warning scales and `--hos-info` are deliberately untouched,
+ * since "info" is blue by convention regardless of what the product's accent is.
+ *
+ * The selector shape mirrors the theme handling in tokens.css: dark is the
+ * default, an explicit `data-theme` wins in both directions, and the
+ * media-query fallback covers the case where the user has pinned neither.
+ */
+@layer hosanna.tokens {
+
+  :root[data-accent="violet"],
+  [data-theme="dark"][data-accent="violet"] {
+    /* styles/_accent-violet-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #a78bfa;
+    --hos-accent-hover: #c4b5fd;
+    --hos-accent-active: #8b5cf6;
+    --hos-accent-subtle: #241c3a;
+    --hos-accent-fg: #c4b5fd;
+
+    --hos-fg-on-accent: #1b1033;
+    --hos-border-accent: rgb(167 139 250 / 0.45);
+    --hos-ring: #a78bfa;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #241c3a;
+
+
+  }
+
+  [data-theme="light"][data-accent="violet"] {
+    /* styles/_accent-violet-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #7c3aed;
+    --hos-accent-hover: #6d28d9;
+    --hos-accent-active: #5b21b6;
+    --hos-accent-subtle: #ede9fe;
+    --hos-accent-fg: #6d28d9;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(124 58 237 / 0.45);
+    --hos-ring: #7c3aed;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #ede9fe;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="violet"] {
+      /* styles/_accent-violet-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #7c3aed;
+      --hos-accent-hover: #6d28d9;
+      --hos-accent-active: #5b21b6;
+      --hos-accent-subtle: #ede9fe;
+      --hos-accent-fg: #6d28d9;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(124 58 237 / 0.45);
+      --hos-ring: #7c3aed;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #ede9fe;
+
+
+    }
+  }
+
+  :root[data-accent="teal"],
+  [data-theme="dark"][data-accent="teal"] {
+    /* styles/_accent-teal-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #2dd4bf;
+    --hos-accent-hover: #5eead4;
+    --hos-accent-active: #14b8a6;
+    --hos-accent-subtle: #102b28;
+    --hos-accent-fg: #5eead4;
+
+    --hos-fg-on-accent: #042825;
+    --hos-border-accent: rgb(45 212 191 / 0.45);
+    --hos-ring: #2dd4bf;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #102b28;
+
+
+  }
+
+  [data-theme="light"][data-accent="teal"] {
+    /* styles/_accent-teal-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #0d9488;
+    --hos-accent-hover: #0f766e;
+    --hos-accent-active: #115e59;
+    --hos-accent-subtle: #ccfbf1;
+    --hos-accent-fg: #0f766e;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(13 148 136 / 0.45);
+    --hos-ring: #0d9488;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #ccfbf1;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="teal"] {
+      /* styles/_accent-teal-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #0d9488;
+      --hos-accent-hover: #0f766e;
+      --hos-accent-active: #115e59;
+      --hos-accent-subtle: #ccfbf1;
+      --hos-accent-fg: #0f766e;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(13 148 136 / 0.45);
+      --hos-ring: #0d9488;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #ccfbf1;
+
+
+    }
+  }
+
+  :root[data-accent="green"],
+  [data-theme="dark"][data-accent="green"] {
+    /* styles/_accent-green-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #4ade80;
+    --hos-accent-hover: #86efac;
+    --hos-accent-active: #22c55e;
+    --hos-accent-subtle: #14291c;
+    --hos-accent-fg: #86efac;
+
+    --hos-fg-on-accent: #06280f;
+    --hos-border-accent: rgb(74 222 128 / 0.45);
+    --hos-ring: #4ade80;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #14291c;
+
+
+  }
+
+  [data-theme="light"][data-accent="green"] {
+    /* styles/_accent-green-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #16a34a;
+    --hos-accent-hover: #15803d;
+    --hos-accent-active: #166534;
+    --hos-accent-subtle: #dcfce7;
+    --hos-accent-fg: #15803d;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(22 163 74 / 0.45);
+    --hos-ring: #16a34a;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #dcfce7;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="green"] {
+      /* styles/_accent-green-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #16a34a;
+      --hos-accent-hover: #15803d;
+      --hos-accent-active: #166534;
+      --hos-accent-subtle: #dcfce7;
+      --hos-accent-fg: #15803d;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(22 163 74 / 0.45);
+      --hos-ring: #16a34a;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #dcfce7;
+
+
+    }
+  }
+
+  :root[data-accent="amber"],
+  [data-theme="dark"][data-accent="amber"] {
+    /* styles/_accent-amber-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #fbbf24;
+    --hos-accent-hover: #fcd34d;
+    --hos-accent-active: #f59e0b;
+    --hos-accent-subtle: #2c2312;
+    --hos-accent-fg: #fcd34d;
+
+    --hos-fg-on-accent: #2b1d02;
+    --hos-border-accent: rgb(251 191 36 / 0.45);
+    --hos-ring: #fbbf24;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #2c2312;
+
+
+  }
+
+  [data-theme="light"][data-accent="amber"] {
+    /* styles/_accent-amber-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #b45309;
+    --hos-accent-hover: #92400e;
+    --hos-accent-active: #78350f;
+    --hos-accent-subtle: #fef3c7;
+    --hos-accent-fg: #92400e;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(180 83 9 / 0.45);
+    --hos-ring: #b45309;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #fef3c7;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="amber"] {
+      /* styles/_accent-amber-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #b45309;
+      --hos-accent-hover: #92400e;
+      --hos-accent-active: #78350f;
+      --hos-accent-subtle: #fef3c7;
+      --hos-accent-fg: #92400e;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(180 83 9 / 0.45);
+      --hos-ring: #b45309;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #fef3c7;
+
+
+    }
+  }
+
+  :root[data-accent="rose"],
+  [data-theme="dark"][data-accent="rose"] {
+    /* styles/_accent-rose-dark.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #fb7185;
+    --hos-accent-hover: #fda4af;
+    --hos-accent-active: #f43f5e;
+    --hos-accent-subtle: #2e1820;
+    --hos-accent-fg: #fda4af;
+
+    --hos-fg-on-accent: #330711;
+    --hos-border-accent: rgb(251 113 133 / 0.45);
+    --hos-ring: #fb7185;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #2e1820;
+
+
+  }
+
+  [data-theme="light"][data-accent="rose"] {
+    /* styles/_accent-rose-light.css */
+    /* Declaration-only partial — spliced into a selector by the CSS build.
+     * Do not add selectors here. */
+
+    --hos-accent: #e11d48;
+    --hos-accent-hover: #be123c;
+    --hos-accent-active: #9f1239;
+    --hos-accent-subtle: #ffe4e6;
+    --hos-accent-fg: #be123c;
+
+    --hos-fg-on-accent: #ffffff;
+    --hos-border-accent: rgb(225 29 72 / 0.45);
+    --hos-ring: #e11d48;
+
+    /* Row and option selection is an accent surface, so it follows the accent
+     * rather than staying blue while everything around it changes. */
+    --hos-surface-selected: #ffe4e6;
+
+
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"])[data-accent="rose"] {
+      /* styles/_accent-rose-light.css */
+      /* Declaration-only partial — spliced into a selector by the CSS build.
+       * Do not add selectors here. */
+
+      --hos-accent: #e11d48;
+      --hos-accent-hover: #be123c;
+      --hos-accent-active: #9f1239;
+      --hos-accent-subtle: #ffe4e6;
+      --hos-accent-fg: #be123c;
+
+      --hos-fg-on-accent: #ffffff;
+      --hos-border-accent: rgb(225 29 72 / 0.45);
+      --hos-ring: #e11d48;
+
+      /* Row and option selection is an accent surface, so it follows the accent
+       * rather than staying blue while everything around it changes. */
+      --hos-surface-selected: #ffe4e6;
+
+
+    }
+  }
+
+}
+

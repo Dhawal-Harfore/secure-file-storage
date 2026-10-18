@@ -28,11 +28,23 @@
       <div class="pv-head">
         <h1>Files</h1>
         <span class="pv-count tnum" id="count"></span>
+        <span class="pv-spacer"></span>
+        <button class="hos-button" type="button" data-variant="primary" data-size="sm" data-hos-focus id="upload">
+          <span class="hos-button__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 15v3.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+          <span class="hos-button__label">Upload</span>
+        </button>
+        <input type="file" id="picker" multiple hidden />
       </div>
+
+      <section class="pv-uploads" id="uploads" aria-label="Uploads" hidden></section>
 
       <div class="pv-state" id="state">Loading your files…</div>
       <div class="pv-list" id="list" hidden></div>
     </main>
+
+    <div class="pv-drop" id="drop" hidden>
+      <div class="pv-drop-inner">Drop to upload. Files are encrypted before they're stored.</div>
+    </div>
 
     <div class="pv-toast" id="toast" role="status" aria-live="polite" hidden></div>
 
