@@ -69,7 +69,12 @@ public class AuthController {
         }
 
         String token = magicLinkService.createToken(email);
-        mailer.send(email, token);
+        try {
+            mailer.send(email, token);
+        } catch (MagicLinkMailer.MailDeliveryException e) {
+            return error(HttpStatus.SERVICE_UNAVAILABLE, "email_unavailable",
+                    "We could not send the sign-in link. Try again later.");
+        }
 
         return ResponseEntity.accepted()
                 .body(Map.of("ok", true));

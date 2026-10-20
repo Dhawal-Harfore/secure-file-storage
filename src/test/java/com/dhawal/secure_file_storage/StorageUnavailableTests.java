@@ -14,7 +14,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
+@SpringBootTest(properties = "vault.storage.encryption.enabled=false")
 @AutoConfigureMockMvc
 class StorageUnavailableTests {
 

@@ -57,8 +57,8 @@ public class MagicLinkMailer {
                 + URLEncoder.encode(token, StandardCharsets.UTF_8);
 
         if (apiKey.isEmpty()) {
-            log.warn("RESEND_API_KEY is not set, so no email was sent. Sign-in link for {}: {}", email, link);
-            return;
+            log.error("Cannot send sign-in email: RESEND_API_KEY is not configured");
+            throw new MailDeliveryException("Email provider is not configured");
         }
 
         String minutes = String.valueOf(MagicLinkService.LIFETIME.toMinutes());
@@ -79,14 +79,40 @@ public class MagicLinkMailer {
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
 
-        http.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .whenComplete((response, error) -> {
-                    if (error != null) {
-                        log.error("Could not reach Resend to send a sign-in email", error);
-                    } else if (response.statusCode() >= 300) {
-                        log.error("Resend refused a sign-in email: {} {}", response.statusCode(), response.body());
-                    }
-                });
+        try {
+            HttpResponse<String> response =
+                    http.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 300) {
+                log.error("Resend refused a sign-in email: HTTP {} response={}",
+                        response.statusCode(), response.body());
+                throw new MailDeliveryException("Email provider refused the request");
+            }
+
+            log.info("Resend accepted a sign-in email request: HTTP {}", response.statusCode());
+
+        } catch (IOException e) {
+            log.error("Could not reach Resend to send a sign-in email", e);
+            throw new MailDeliveryException("Email provider is unreachable", e);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Sending a sign-in email was interrupted", e);
+            throw new MailDeliveryException("Email provider request was interrupted", e);
+        }
+    }
+
+    public static class MailDeliveryException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public MailDeliveryException(String message) {
+            super(message);
+        }
+
+        public MailDeliveryException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     private static String load(String path) {

@@ -294,6 +294,7 @@ rendition served, share created, share revoked, view counted) but does not rende
 | 410    | gone            | share expired, revoked, or out of views |
 | 413    | too_large       | over the upload cap |
 | 429    | rate_limited    | magic-link throttle, or too many unfinished uploads |
+| 503    | email_unavailable | sign-in link could not be submitted to the email provider |
 | 503    | unavailable     | a control-plane piece isn't wired in yet |
 | 507    | insufficient_storage | the server has no room for the file |
 

@@ -1,6 +1,7 @@
 package com.dhawal.secure_file_storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -75,8 +76,29 @@ class MagicLinkMailerTests {
         MagicLinkMailer mailer = new MagicLinkMailer(json, "  ", endpoint,
                 "Vault <signin@thecollege.cloud>", "https://thecollege.cloud");
 
-        mailer.send("asha@example.com", "abc");
+        assertThatThrownBy(() -> mailer.send("asha@example.com", "abc"))
+                .isInstanceOf(MagicLinkMailer.MailDeliveryException.class)
+                .hasMessage("Email provider is not configured");
 
         assertThat(requests.poll(500, TimeUnit.MILLISECONDS)).isNull();
+    }
+
+    @Test
+    void rejectsNonSuccessfulResendResponse() throws Exception {
+        server.removeContext("/emails");
+        server.createContext("/emails", exchange -> {
+            byte[] reply = "{\"message\":\"The from address is not verified\"}"
+                    .getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(403, reply.length);
+            exchange.getResponseBody().write(reply);
+            exchange.close();
+        });
+
+        MagicLinkMailer mailer = new MagicLinkMailer(json, "re_test", endpoint,
+                "Vault <signin@thecollege.cloud>", "https://thecollege.cloud");
+
+        assertThatThrownBy(() -> mailer.send("asha@example.com", "abc"))
+                .isInstanceOf(MagicLinkMailer.MailDeliveryException.class)
+                .hasMessage("Email provider refused the request");
     }
 }

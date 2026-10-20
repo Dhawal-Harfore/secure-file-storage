@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -137,6 +138,18 @@ class AuthControllerTests {
                 .andExpect(jsonPath("$.error.code").value("invalid_email"));
 
         verify(mailer, never()).send(anyString(), anyString());
+    }
+
+    @Test
+    void emailProviderFailureIsReportedWithoutClaimingSuccess() throws Exception {
+        doThrow(new MagicLinkMailer.MailDeliveryException("Email provider refused the request"))
+                .when(mailer).send(anyString(), anyString());
+
+        mvc.perform(post("/api/auth/magic-link").with(from(newClient()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"asha@example.com\"}"))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.error.code").value("email_unavailable"));
     }
 
     @Test
