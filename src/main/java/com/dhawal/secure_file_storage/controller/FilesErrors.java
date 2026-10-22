@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.dhawal.secure_file_storage.storage.ApiException;
 
-@RestControllerAdvice(assignableTypes = FilesController.class)
+@RestControllerAdvice(assignableTypes = { FilesController.class, SharesController.class })
 public class FilesErrors {
 
     private static final Logger log = LoggerFactory.getLogger(FilesErrors.class);

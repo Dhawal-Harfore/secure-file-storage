@@ -128,4 +128,10 @@ public class Share {
     public UserAccount getCreatedBy() {
         return createdBy;
     }
+
+    public void revoke(Instant at) {
+        if (revokedAt == null) {
+            revokedAt = at;
+        }
+    }
 }

@@ -258,8 +258,8 @@ file routes return 503 `unavailable`.
 | `FileCatalog` | `add`, `find`, `addRendition` | Stores `StoredFile`, including each rendition's mime, plaintext size and key handle. |
 | `AuditLog` | `record(AuditEvent)` | Feeds the audit pipeline. |
 
-Spring Security's CSRF check covers `/api/files/**`, and the browser client doesn't send a
-token yet. Uploads from the UI need either the token or an exemption in `SecurityConfig`.
+CSRF uses a cookie the page can read. Every response sets `XSRF-TOKEN`, and every
+non-GET request outside `/api/auth/*` has to send the same value back in `X-XSRF-TOKEN`.
 
 ### Shares
 
@@ -270,6 +270,19 @@ token yet. Uploads from the UI need either the token or an exemption in `Securit
 | POST   | /shares/{id}/revoke   | needs `revoke` |
 | GET    | /s/{token}            | public, returns `{file,permit}` |
 | GET    | /s/{token}/content    | public, increments `viewsUsed` |
+
+- Links are `viewer` or `guest`. `actions` is `view`, plus `download` for viewers only.
+  `expiresAt` can be at most a year away, `maxViews` is 1 to 100000.
+- Only the SHA-256 of a token is stored, so `token` appears once, in the create response.
+  Listing returns `token: null`, and the UI only offers to copy a link right after it's made.
+- The public `file` has `ownerId` and `ownerEmail` left out.
+- A link's permit follows the access table: a viewer gets `reduced` and a guest `lowest` for
+  images, video and PDF. For other files a guest gets `metadata`, and a viewer gets `original`
+  only when the link allows download.
+- A view is counted when a content request starts at byte 0, with one conditional update, so
+  two requests can't both take the last view. Range requests further in don't count, so a
+  video can seek after its opening request used the last view.
+- An ended link answers 410 `gone` and says whether it was revoked, expired or used up.
 
 ### Audit
 

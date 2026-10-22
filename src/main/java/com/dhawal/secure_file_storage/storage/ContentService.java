@@ -49,19 +49,34 @@ public class ContentService {
     }
 
     public Delivery content(SessionUser subject, String fileId, String requestedTier, RequestInfo request) {
-
-        QualityTier requested = null;
-        if (requestedTier != null && !requestedTier.isBlank()) {
-            requested = QualityTier.parse(requestedTier);
-            if (requested == null) {
-                throw ApiException.badRequest("invalid_tier",
-                        "Tier must be original, reduced, lowest or metadata.");
-            }
-        }
-
+        QualityTier requested = parseTier(requestedTier);
         StoredFile file = find(fileId);
-        Permit permit = permitFor(subject, file, request);
+        return select(file, permitFor(subject, file, request), requested);
+    }
 
+    public Delivery forPermit(StoredFile file, Permit permit, String requestedTier) {
+        QualityTier requested = parseTier(requestedTier);
+        controlPlane.cipher();
+        if (!permit.servesBytes()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "denied",
+                    "This link shows the file's details only.", permit.reason());
+        }
+        return select(file, permit, requested);
+    }
+
+    private static QualityTier parseTier(String requestedTier) {
+        if (requestedTier == null || requestedTier.isBlank()) {
+            return null;
+        }
+        QualityTier requested = QualityTier.parse(requestedTier);
+        if (requested == null) {
+            throw ApiException.badRequest("invalid_tier",
+                    "Tier must be original, reduced, lowest or metadata.");
+        }
+        return requested;
+    }
+
+    private static Delivery select(StoredFile file, Permit permit, QualityTier requested) {
         QualityTier ceiling = requested == null
                 ? permit.qualityTier()
                 : QualityTier.lower(requested, permit.qualityTier());

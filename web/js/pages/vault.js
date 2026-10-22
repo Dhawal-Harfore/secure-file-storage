@@ -330,13 +330,15 @@ function shareRow(share, file, refresh) {
   const views = share.maxViews != null ? `${share.viewsUsed} of ${share.maxViews} views` : `${share.viewsUsed} view${share.viewsUsed === 1 ? "" : "s"}`;
   const actions = h("span", { class: "pv-share-actions" });
 
-  if (status === "live") {
+  if (status === "live" && share.token) {
     actions.append(
       button("Copy link", {
         variant: "secondary",
         onclick: async () => toast((await copy(shareLink(share.token))) ? "Link copied." : `Copy this link: ${shareLink(share.token)}`),
       }),
     );
+  }
+  if (status === "live") {
     if (can(file.permit, "revoke")) {
       actions.append(
         button("Revoke", {
