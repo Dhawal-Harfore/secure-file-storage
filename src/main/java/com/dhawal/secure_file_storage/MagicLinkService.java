@@ -1,6 +1,7 @@
 package com.dhawal.secure_file_storage;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -8,8 +9,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MagicLinkService {
@@ -18,13 +17,18 @@ public class MagicLinkService {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-    private final Map<String, MagicLinkToken> tokens = new ConcurrentHashMap<>();
+    private final MagicLinkTokenRepository tokens;
 
+    public MagicLinkService(MagicLinkTokenRepository tokens) {
+        this.tokens = tokens;
+    }
+
+    @Transactional
     public String createToken(String email) {
 
         Instant now = Instant.now();
 
-        tokens.values().removeIf(t -> now.isAfter(t.getExpiresAt().plus(LIFETIME)));
+        tokens.deleteExpiredBefore(now.minus(LIFETIME));
 
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
@@ -41,26 +45,26 @@ public class MagicLinkService {
                 now.plus(LIFETIME)
         );
 
-        tokens.put(tokenHash, token);
+        tokens.save(token);
 
         return rawToken;
     }
 
+    @Transactional
     public String verifyToken(String rawToken) {
 
         String tokenHash = hash(rawToken);
 
-        MagicLinkToken token = tokens.get(tokenHash);
+        MagicLinkToken token = tokens.findById(tokenHash)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
 
-        if (token == null) {
-            throw new IllegalArgumentException("Invalid token");
-        }
+        Instant now = Instant.now();
 
-        if (Instant.now().isAfter(token.getExpiresAt())) {
+        if (now.isAfter(token.getExpiresAt())) {
             throw new IllegalStateException("Token expired");
         }
 
-        if (!token.markUsed()) {
+        if (tokens.markUsed(tokenHash, now) == 0) {
             throw new IllegalStateException("Token already used");
         }
 

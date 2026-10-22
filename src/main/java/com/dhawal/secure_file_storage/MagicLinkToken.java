@@ -1,14 +1,31 @@
 package com.dhawal.secure_file_storage;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicBoolean;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "magic_link_tokens")
 public class MagicLinkToken {
 
-    private final String tokenHash;
-    private final String email;
-    private final Instant expiresAt;
-    private final AtomicBoolean used = new AtomicBoolean(false);
+    @Id
+    @Column(name = "token_hash", length = 64, nullable = false, updatable = false)
+    private String tokenHash;
+
+    @Column(length = 254, nullable = false, updatable = false)
+    private String email;
+
+    @Column(name = "expires_at", nullable = false, updatable = false)
+    private Instant expiresAt;
+
+    @Column(name = "used_at")
+    private Instant usedAt;
+
+    protected MagicLinkToken() {
+    }
 
     public MagicLinkToken(String tokenHash, String email, Instant expiresAt) {
         this.tokenHash = tokenHash;
@@ -28,11 +45,7 @@ public class MagicLinkToken {
         return expiresAt;
     }
 
-    public boolean isUsed() {
-        return used.get();
-    }
-
-    public boolean markUsed() {
-        return used.compareAndSet(false, true);
+    public Instant getUsedAt() {
+        return usedAt;
     }
 }
