@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfToken;
 
 @Configuration
 public class SecurityConfig {
@@ -21,13 +23,15 @@ public class SecurityConfig {
                     "/login.html",
                     "/unlock.html",
                     "/vault.html",
+                    "/share.html",
                     "/css/**",
                     "/js/**",
                     "/vendor/**",
                     "/api/auth/magic-link",
                     "/api/auth/verify",
                     "/api/auth/session",
-                    "/api/auth/logout"
+                    "/api/auth/logout",
+                    "/api/s/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -42,11 +46,18 @@ public class SecurityConfig {
                         + "\"message\":\"Your session has ended. Sign in again.\",\"reason\":\"\"}}");
                 })
             )
-            .csrf(csrf -> csrf.ignoringRequestMatchers(
+            .csrf(csrf -> csrf.spa().ignoringRequestMatchers(
                 "/api/auth/magic-link",
                 "/api/auth/verify",
                 "/api/auth/logout"
-            ));
+            ))
+            .addFilterAfter((request, response, chain) -> {
+                CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+                if (token != null) {
+                    token.getToken();
+                }
+                chain.doFilter(request, response);
+            }, CsrfFilter.class);
 
         return http.build();
     }
