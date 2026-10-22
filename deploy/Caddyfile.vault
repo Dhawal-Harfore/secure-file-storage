@@ -12,6 +12,9 @@ thecollege.cloud {
 
 	@api path /api/*
 	handle @api {
+		request_body {
+			max_size 16MB
+		}
 		reverse_proxy host.containers.internal:8082 {
 			transport http {
 				read_timeout 2m

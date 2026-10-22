@@ -58,7 +58,7 @@ jobs:
           mkdir -p dist
           cp target/*.jar dist/vault-api.jar
           tar czf dist/web.tgz -C web .
-          cp deploy/vault-api.service dist/
+          cp deploy/vault-api.service deploy/vault-backup.service deploy/vault-backup.timer deploy/vault-backup.sh deploy/vault-restore-check.sh dist/
 
       - uses: actions/upload-artifact@v7
         with:
@@ -125,7 +125,7 @@ jobs:
           timeout 120 ssh $SSHOPTS "$HOST" "mkdir -p /tmp/vault.incoming /opt/vault"
 
           timeout 300 rsync -a --partial -e "$RSH" \
-            dist/web.tgz dist/vault-api.service "$HOST:/tmp/vault.incoming/"
+            dist/web.tgz dist/vault-api.service dist/vault-backup.service dist/vault-backup.timer dist/vault-backup.sh dist/vault-restore-check.sh "$HOST:/tmp/vault.incoming/"
 
           have_jar=$(timeout 120 ssh $SSHOPTS "$HOST" "test -s /opt/vault/vault-api.jar && echo yes || echo no")
 
@@ -162,8 +162,14 @@ jobs:
           restorecon -R "$WEB" 2>/dev/null || true
 
           install -D -m 644 "$IN/vault-api.service" /etc/systemd/system/vault-api.service
+          install -D -m 644 "$IN/vault-backup.service" /etc/systemd/system/vault-backup.service
+          install -D -m 644 "$IN/vault-backup.timer" /etc/systemd/system/vault-backup.timer
+          install -D -m 700 "$IN/vault-backup.sh" /usr/local/libexec/vault-backup
+          install -D -m 700 "$IN/vault-restore-check.sh" /usr/local/libexec/vault-restore-check
+          restorecon /usr/local/libexec/vault-backup /usr/local/libexec/vault-restore-check 2>/dev/null || true
           systemctl daemon-reload
           systemctl enable vault-api >/dev/null 2>&1
+          systemctl enable --now vault-backup.timer >/dev/null 2>&1
 
           if [ "$API_CHANGED" = "true" ] || ! systemctl is-active --quiet vault-api; then
             restorecon /opt/vault/vault-api.jar 2>/dev/null || true

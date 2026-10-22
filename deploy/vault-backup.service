@@ -1,0 +1,10 @@
+[Unit]
+Description=Vault backup (database, encrypted files, keys, API jar)
+After=mysqld.service
+Requires=mysqld.service
+
+[Service]
+Type=oneshot
+Nice=10
+IOSchedulingClass=idle
+ExecStart=/usr/local/libexec/vault-backup
