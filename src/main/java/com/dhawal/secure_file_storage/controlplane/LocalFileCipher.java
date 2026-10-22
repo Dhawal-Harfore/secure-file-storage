@@ -22,13 +22,11 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
 @ConditionalOnProperty(name = "vault.storage.encryption.enabled", havingValue = "true", matchIfMissing = true)
-@ConditionalOnMissingBean(FileCipher.class)
 public class LocalFileCipher implements FileCipher {
 
     private static final int SEGMENT_SIZE = 64 * 1024;

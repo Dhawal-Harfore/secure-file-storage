@@ -28,10 +28,10 @@ class PersistenceRepositoryTests {
 
     @Test
     void userEmailIsUnique() {
-        users.saveAndFlush(new UserAccount("u_1", "asha@example.com"));
+        users.saveAndFlush(new UserAccount("u_1", "unique-check@example.com"));
 
         assertThatThrownBy(() -> users.saveAndFlush(
-                new UserAccount("u_2", "asha@example.com")))
+                new UserAccount("u_2", "unique-check@example.com")))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 

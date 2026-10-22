@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.ApplicationContext;
 import org.springframework.beans.factory.annotation.Value;
@@ -166,21 +167,19 @@ class ProductionEncryptionIntegrationTests {
     static class Doubles {
 
         @Bean
-        LocalFileCipher localFileCipher(@Value("${vault.storage.root}") Path storageRoot) {
-            return new LocalFileCipher(storageRoot);
-        }
-
-        @Bean
+        @Primary
         TestCatalog testCatalog() {
             return new TestCatalog();
         }
 
         @Bean
+        @Primary
         ControlPlaneDoubles.TestPermits testPermits(TestCatalog catalog) {
             return new ControlPlaneDoubles.TestPermits(catalog);
         }
 
         @Bean
+        @Primary
         TestAudit testAudit() {
             return new TestAudit();
         }

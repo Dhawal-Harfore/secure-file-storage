@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 
 import com.dhawal.secure_file_storage.persistence.StoredFileRepository;
 import com.dhawal.secure_file_storage.persistence.UserAccount;
@@ -15,7 +14,6 @@ import com.dhawal.secure_file_storage.persistence.UserAccountRepository;
 import com.dhawal.secure_file_storage.storage.Ids;
 
 @Service
-@ConditionalOnMissingBean(FileCatalog.class)
 public class JpaFileCatalog implements FileCatalog {
 
     private final StoredFileRepository files;

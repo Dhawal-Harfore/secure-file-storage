@@ -27,6 +27,7 @@ import javax.crypto.spec.IvParameterSpec;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 
 import com.dhawal.secure_file_storage.controlplane.AuditEvent;
 import com.dhawal.secure_file_storage.controlplane.AuditLog;
@@ -43,21 +44,25 @@ import com.dhawal.secure_file_storage.storage.Ids;
 public class ControlPlaneDoubles {
 
     @Bean
+    @Primary
     TestCipher testCipher() {
         return new TestCipher();
     }
 
     @Bean
+    @Primary
     TestCatalog testCatalog() {
         return new TestCatalog();
     }
 
     @Bean
+    @Primary
     TestPermits testPermits(TestCatalog catalog) {
         return new TestPermits(catalog);
     }
 
     @Bean
+    @Primary
     TestAudit testAudit() {
         return new TestAudit();
     }

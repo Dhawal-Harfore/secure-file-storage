@@ -27,6 +27,7 @@ import com.dhawal.secure_file_storage.persistence.AuditEventRepository;
 import com.dhawal.secure_file_storage.persistence.FilePermission;
 import com.dhawal.secure_file_storage.persistence.FilePermissionRepository;
 import com.dhawal.secure_file_storage.persistence.FileKind;
+import com.dhawal.secure_file_storage.persistence.ShareRepository;
 import com.dhawal.secure_file_storage.persistence.StoredFileRepository;
 import com.dhawal.secure_file_storage.persistence.UserAccountRepository;
 import com.dhawal.secure_file_storage.security.AuthenticatedUserService;
@@ -54,6 +55,9 @@ class ControlPlaneAccessTests {
     @Autowired
     private AuditEventRepository events;
 
+    @Autowired
+    private ShareRepository shares;
+
     private AuthenticatedUserService authenticatedUsers;
 
     @BeforeEach
@@ -61,7 +65,7 @@ class ControlPlaneAccessTests {
         authenticatedUsers = new AuthenticatedUserService(users);
         catalog = new JpaFileCatalog(files, users);
         permits = new JpaPermitService(files, permissions);
-        audit = new JpaAuditLog(events, users, files);
+        audit = new JpaAuditLog(events, users, files, shares);
     }
 
     @Test

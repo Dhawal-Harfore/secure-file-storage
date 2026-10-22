@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 
 import com.dhawal.secure_file_storage.persistence.AccessLevel;
 import com.dhawal.secure_file_storage.persistence.Action;
@@ -14,7 +13,6 @@ import com.dhawal.secure_file_storage.persistence.FilePermissionRepository;
 import com.dhawal.secure_file_storage.persistence.StoredFileRepository;
 
 @Service
-@ConditionalOnMissingBean(PermitService.class)
 public class JpaPermitService implements PermitService {
 
     private final StoredFileRepository files;
