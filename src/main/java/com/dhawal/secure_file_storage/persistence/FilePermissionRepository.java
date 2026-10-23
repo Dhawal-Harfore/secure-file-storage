@@ -10,4 +10,6 @@ public interface FilePermissionRepository extends JpaRepository<FilePermission, 
     List<FilePermission> findBySubjectId(String subjectId);
 
     Optional<FilePermission> findByFileIdAndSubjectId(String fileId, String subjectId);
+
+    List<FilePermission> findByFileId(String fileId);
 }

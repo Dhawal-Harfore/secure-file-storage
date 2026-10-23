@@ -74,4 +74,9 @@ public class FilePermission {
     public Set<Action> getActions() {
         return Set.copyOf(actions);
     }
+
+    public void change(AccessLevel accessLevel, Set<Action> actions) {
+        this.accessLevel = accessLevel;
+        this.actions = actions.isEmpty() ? EnumSet.noneOf(Action.class) : EnumSet.copyOf(actions);
+    }
 }

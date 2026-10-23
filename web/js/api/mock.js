@@ -374,6 +374,48 @@ export const mockApi = {
     },
   },
 
+  people: {
+    async list(fileId) {
+      await latency();
+      requireSession();
+      demand(project(find(fileId)), "share");
+      return (db.people ?? []).filter((p) => p.fileId === fileId).map(({ fileId: _, ...p }) => p);
+    },
+
+    async grant(fileId, { email, accessLevel, download }) {
+      await latency();
+      requireSession();
+      const meta = project(find(fileId));
+      demand(meta, "share");
+      const address = (email ?? "").trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) throw new ApiError(400, "invalid_person", "Enter the email address of the person.");
+      if (address === meta.ownerEmail) throw new ApiError(400, "invalid_person", "The owner already has full access.");
+      if (!["editor", "viewer", "guest"].includes(accessLevel)) throw new ApiError(400, "invalid_person", "Pick editor, viewer or guest.");
+      const actions = accessLevel === "editor" ? ["download", "edit", "view"] : accessLevel === "viewer" && download ? ["download", "view"] : ["view"];
+      db.people = db.people ?? [];
+      let person = db.people.find((p) => p.fileId === fileId && p.email === address);
+      if (!person) {
+        person = { id: rid("p"), fileId, email: address };
+        db.people.push(person);
+      }
+      Object.assign(person, { accessLevel, actions });
+      save();
+      log("share", meta, meta.permit.qualityTier);
+      const { fileId: _, ...view } = person;
+      return view;
+    },
+
+    async remove(fileId, permissionId) {
+      await latency();
+      requireSession();
+      const meta = project(find(fileId));
+      demand(meta, "revoke");
+      db.people = (db.people ?? []).filter((p) => p.id !== permissionId);
+      save();
+      log("revoke", meta, meta.permit.qualityTier);
+    },
+  },
+
   audit: {
     async list({ fileId, action, result, page = 1, pageSize = 25 } = {}) {
       await latency();

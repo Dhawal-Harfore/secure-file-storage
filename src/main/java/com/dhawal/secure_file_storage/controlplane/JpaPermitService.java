@@ -26,7 +26,8 @@ public class JpaPermitService implements PermitService {
     @Override
     @Transactional(readOnly = true)
     public Permit evaluate(String fileId, String subjectId) {
-        Optional<com.dhawal.secure_file_storage.persistence.StoredFile> found = files.findById(fileId);
+        Optional<com.dhawal.secure_file_storage.persistence.StoredFile> found =
+                files.findById(fileId).filter(f -> f.getDeletedAt() == null);
         if (found.isEmpty()) {
             return empty(fileId, subjectId, "policy:not_found");
         }
@@ -46,11 +47,12 @@ public class JpaPermitService implements PermitService {
         }
 
         FilePermission grant = permission.get();
+        boolean media = file.getKind() != com.dhawal.secure_file_storage.persistence.FileKind.OTHER;
         QualityTier tier = switch (grant.getAccessLevel()) {
-            case EDITOR -> QualityTier.ORIGINAL;
-            case VIEWER -> QualityTier.REDUCED;
-            case GUEST -> QualityTier.LOWEST;
-            case OWNER -> QualityTier.ORIGINAL;
+            case OWNER, EDITOR -> QualityTier.ORIGINAL;
+            case VIEWER -> media ? QualityTier.REDUCED
+                    : grant.getActions().contains(Action.DOWNLOAD) ? QualityTier.ORIGINAL : QualityTier.METADATA;
+            case GUEST -> media ? QualityTier.LOWEST : QualityTier.METADATA;
         };
         return permit(fileId, subjectId, grant.getAccessLevel(),
                 grant.getActions(), tier, "policy:" + grant.getAccessLevel().name().toLowerCase());

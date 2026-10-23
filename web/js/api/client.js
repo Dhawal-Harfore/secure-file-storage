@@ -174,6 +174,20 @@ export const liveApi = {
         },
     },
 
+    people: {
+        async list(fileId) {
+            return request(`/files/${enc(fileId)}/people`);
+        },
+
+        async grant(fileId, payload) {
+            return request(`/files/${enc(fileId)}/people`, json("POST", payload));
+        },
+
+        async remove(fileId, permissionId, { keepalive = false } = {}) {
+            await request(`/files/${enc(fileId)}/people/${enc(permissionId)}`, { method: "DELETE", keepalive });
+        },
+    },
+
     audit: {
         async list(params = {}) {
             const query = new URLSearchParams();

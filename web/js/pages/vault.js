@@ -381,6 +381,119 @@ function shareRow(share, file, refresh) {
   );
 }
 
+function peopleSection(file) {
+  const listEl = h("div", { class: "pv-share-list" }, h("p", { class: "pv-note", text: "Loading people…" }));
+  let people = [];
+  const refresh = () => {
+    listEl.replaceChildren(
+      ...(people.length
+        ? people.map((person) =>
+            h(
+              "div",
+              { class: "pv-share", "data-pending": person.pending ? "true" : null },
+              h(
+                "span",
+                { class: "pv-share-main" },
+                h("span", { class: "pv-share-title", text: person.email }),
+                h("span", { class: "pv-share-meta", text: `${config.levelLabels[person.accessLevel]}${person.actions.includes("download") ? " · download allowed" : ""}` }),
+              ),
+              can(file.permit, "revoke")
+                ? h(
+                    "span",
+                    { class: "pv-share-actions" },
+                    button("Remove", {
+                      variant: "ghost",
+                      onclick: () => {
+                        person.pending = true;
+                        refresh();
+                        withUndo(`${person.email} removed.`, {
+                          undo: () => {
+                            person.pending = false;
+                            refresh();
+                          },
+                          commit: async ({ keepalive }) => {
+                            try {
+                              await api.people.remove(file.id, person.id, { keepalive });
+                              people = people.filter((x) => x !== person);
+                            } catch (err) {
+                              person.pending = false;
+                              toast(message(err, "Couldn't remove that person."), { tone: "danger" });
+                            }
+                            refresh();
+                          },
+                        });
+                      },
+                    }),
+                  )
+                : null,
+            ),
+          )
+        : [h("p", { class: "pv-note", text: "Only you can open this file." })]),
+    );
+  };
+
+  const email = h("input", { class: "hos-input", id: "person-email", type: "email", placeholder: "name@vit.ac.in", autocomplete: "off", "data-hos-focus": true });
+  const download = h("input", { class: "hos-switch__input", type: "checkbox", id: "person-download" });
+  const error = h("p", { class: "hos-field__error", role: "alert", hidden: true });
+  const add = button("Give access", { variant: "secondary", type: "submit", form: "people-form" });
+  const form = h(
+    "form",
+    { id: "people-form", class: "pv-form", novalidate: true },
+    h("div", { class: "hos-field" }, h("label", { class: "hos-label", for: "person-email", text: "Email address" }), email),
+    h(
+      "div",
+      { class: "hos-radio-group", "data-orientation": "horizontal" },
+      radio("person-level", "viewer", "Viewer", null, true),
+      radio("person-level", "editor", "Editor", null, false),
+      radio("person-level", "guest", "Guest", null, false),
+    ),
+    h(
+      "label",
+      { class: "hos-switch", for: "person-download" },
+      h("span", { class: "hos-switch__control" }, download, h("span", { class: "hos-switch__track" }, h("span", { class: "hos-switch__thumb" }))),
+      h("span", { class: "hos-switch__text" }, h("span", { class: "hos-switch__label", text: "Viewer can download" })),
+    ),
+    error,
+    h("div", {}, add),
+  );
+  form.addEventListener("change", () => {
+    const viewer = form.elements["person-level"].value === "viewer";
+    download.disabled = !viewer;
+    if (!viewer) download.checked = false;
+  });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    error.hidden = true;
+    busy(add, true, "Adding…");
+    try {
+      const person = await api.people.grant(file.id, {
+        email: email.value.trim(),
+        accessLevel: form.elements["person-level"].value,
+        download: download.checked,
+      });
+      people = [...people.filter((p) => p.id !== person.id), person];
+      refresh();
+      email.value = "";
+      toast(`${person.email} can now open this file as ${config.levelLabels[person.accessLevel].toLowerCase()}.`);
+    } catch (err) {
+      error.textContent = message(err, "Couldn't give access.");
+      error.hidden = false;
+    } finally {
+      busy(add, false, "Give access");
+    }
+  });
+
+  api.people
+    .list(file.id)
+    .then((list) => {
+      people = list;
+      refresh();
+    })
+    .catch((err) => listEl.replaceChildren(h("p", { class: "pv-note", text: message(err, "Couldn't load who has access.") })));
+
+  return h("section", { class: "pv-section" }, h("h3", { class: "pv-section-title", text: "People" }), listEl, form);
+}
+
 async function shareDialog(file) {
   const existing = h("div", { class: "pv-share-list" }, h("p", { class: "pv-note", text: "Loading links…" }));
   let shares = [];
@@ -443,9 +556,9 @@ async function shareDialog(file) {
   const create = button("Create link", { variant: "primary", type: "submit", form: "share-form" });
   const dialog = openDialog({
     title: `Share ${file.name}`,
-    description: "Anyone with the link can open it at the level you pick. You can revoke it any time.",
+    description: "Give a person access by email, or make a link anyone can open. You can take either back any time.",
     size: "md",
-    body: [existing, form],
+    body: [peopleSection(file), h("section", { class: "pv-section" }, h("h3", { class: "pv-section-title", text: "Links" }), existing, form)],
     footer: [button("Done", { variant: "ghost", onclick: () => dialog.close() }), create],
   });
 
