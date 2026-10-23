@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Activity &middot; Vault</title>
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;650&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="vendor/hosanna/styles.css" />
+    <link rel="stylesheet" href="css/vault.css" />
+  </head>
+  <body>
+    <header class="pv-appbar">
+      <a class="pv-brand" href="vault.html">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.5 19.5 5.4v5.9c0 4.7-3.2 8.4-7.5 10.2-4.3-1.8-7.5-5.5-7.5-10.2V5.4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="10.4" r="1.9" stroke="currentColor" stroke-width="1.6"/><path d="M12 12.3v2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Vault
+      </a>
+      <nav class="pv-nav" aria-label="Main">
+        <a class="pv-navlink" href="vault.html">Files</a>
+        <a class="pv-navlink" href="audit.html" aria-current="page">Activity</a>
+      </nav>
+      <span class="pv-spacer"></span>
+      <span class="pv-who" id="who"></span>
+      <button class="hos-button" type="button" data-variant="ghost" data-size="sm" data-hos-focus id="signout">
+        <span class="hos-button__label">Sign out</span>
+      </button>
+    </header>
+
+    <main class="pv-main">
+      <div class="pv-head">
+        <h1>Activity</h1>
+        <span class="pv-count tnum" id="count"></span>
+      </div>
+
+      <form class="pv-filters" id="filters">
+        <div class="hos-field">
+          <label class="hos-label" for="action">Action</label>
+          <select class="pv-select" id="action" name="action">
+            <option value="">All actions</option>
+            <option value="upload">Upload</option>
+            <option value="view">View</option>
+            <option value="edit">Rename</option>
+            <option value="share">Share</option>
+            <option value="revoke">Revoke</option>
+            <option value="delete">Delete</option>
+          </select>
+        </div>
+        <div class="hos-field">
+          <label class="hos-label" for="result">Result</label>
+          <select class="pv-select" id="result" name="result">
+            <option value="">Allowed and refused</option>
+            <option value="permit">Allowed</option>
+            <option value="deny">Refused</option>
+          </select>
+        </div>
+      </form>
+
+      <div class="pv-state" id="state">Loading activity…</div>
+      <div class="pv-audit" id="table" hidden></div>
+
+      <div class="pv-pager" id="pager" hidden>
+        <span id="page-label"></span>
+        <span>
+          <button class="hos-button" type="button" data-variant="secondary" data-size="sm" data-hos-focus id="prev"><span class="hos-button__label">Newer</span></button>
+          <button class="hos-button" type="button" data-variant="secondary" data-size="sm" data-hos-focus id="next"><span class="hos-button__label">Older</span></button>
+        </span>
+      </div>
+    </main>
+
+    <script type="module" src="js/pages/audit.js"></script>
+  </body>
+</html>

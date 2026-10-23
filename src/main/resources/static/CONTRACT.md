@@ -173,8 +173,25 @@ the response time.
 | GET    | /files/{id}/permit          | re-evaluated live |
 | GET    | /files/{id}/content?tier=   | bytes at the permitted tier |
 | GET    | /files/{id}/thumb           | 404 when kind is `other` |
-| PATCH  | /files/{id}                 | `{name}`, needs `edit` |
-| DELETE | /files/{id}                 | needs `delete` |
+| PATCH  | /files/{id}                 | `{name}`, needs `edit`, returns `FileMeta` |
+| DELETE | /files/{id}                 | needs `delete`, 204 |
+
+Rename cleans the name the same way upload does. Delete hides the file at once, revokes its
+share links, destroys every key the file used and removes its encrypted bytes. The row stays
+in `stored_files` with `deleted_at` set, so the audit trail still points at a real file. A file
+you can't see answers 404, not an empty 200.
+
+### People
+
+| Method | Path                                  | Notes |
+|--------|---------------------------------------|-------|
+| GET    | /files/{id}/people                    | needs `share`, returns `[{id,email,accessLevel,actions}]` |
+| POST   | /files/{id}/people                    | `{email,accessLevel,download}`, needs `share` |
+| DELETE | /files/{id}/people/{permissionId}     | needs `revoke`, 204 |
+
+`accessLevel` is `editor` (view, edit, download), `viewer` (view, plus download when
+`download` is true) or `guest` (view). Giving access to the same email again changes it.
+The person doesn't need an account yet; they see the file the first time they sign in.
 
 Asking for a tier above the permit is not an error. The server clamps it down to the
 permitted tier and records what it actually served. Returning 403 there would let a caller
@@ -258,6 +275,13 @@ file routes return 503 `unavailable`.
 | `FileCatalog` | `add`, `find`, `addRendition` | Stores `StoredFile`, including each rendition's mime, plaintext size and key handle. |
 | `AuditLog` | `record(AuditEvent)` | Feeds the audit pipeline. |
 
+Sessions live in MySQL through Spring Session, so a restart or deploy doesn't sign anyone
+out. The cookie is `vault_session`, HttpOnly, Secure, SameSite=Lax, and lasts 12 hours.
+
+Per-file keys are wrapped with AES-GCM under a master key from `VAULT_MASTER_KEY`, which
+sits in `/etc/vault/vault.env` and not in the file store or the backups. Losing it means
+losing every file, so it has to be kept somewhere safe off the server too.
+
 CSRF uses a cookie the page can read. Every response sets `XSRF-TOKEN`, and every
 non-GET request outside `/api/auth/*` has to send the same value back in `X-XSRF-TOKEN`.
 
@@ -286,11 +310,12 @@ non-GET request outside `/api/auth/*` has to send the same value back in `X-XSRF
 
 ### Audit
 
-`GET /audit` with `fileId, actorId, action, result, from, to, page, pageSize`.
+`GET /audit` with `fileId, action, result, from, to, page, pageSize`.
 Returns `{events, total, page, pageSize}`.
 
-Read by Dhawal's audit viewer. The data plane emits the events that feed it (upload,
-rendition served, share created, share revoked, view counted) but does not render them.
+You see events on files you own and events you caused, newest first, `pageSize` at most
+100. `from` and `to` are ISO instants. Both planes emit events: upload, view, rename, delete,
+share and revoke, for links and for people. The Activity page in the UI shows them.
 
 ## Errors
 
@@ -300,7 +325,7 @@ rendition served, share created, share revoked, view counted) but does not rende
 
 | Status | Code            | Meaning |
 |--------|-----------------|---------|
-| 400    | invalid_upload, invalid_chunk, incomplete_upload, checksum_mismatch, invalid_tier, invalid_request | bad input, `message` says what |
+| 400    | invalid_upload, invalid_chunk, incomplete_upload, checksum_mismatch, invalid_tier, invalid_request, invalid_share, invalid_person | bad input, `message` says what |
 | 401    | unauthenticated | no or invalid session |
 | 403    | denied          | policy engine refused, `reason` says why |
 | 404    | not_found       | unknown, or hidden from this subject |

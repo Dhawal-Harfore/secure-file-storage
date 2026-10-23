@@ -509,6 +509,120 @@ body {
   gap: var(--hos-space-2);
 }
 
+.pv-section + .pv-section {
+  margin-top: var(--hos-space-6);
+  padding-top: var(--hos-space-5);
+  border-top: 1px solid var(--hos-border-subtle);
+}
+
+.pv-section-title {
+  margin: 0 0 var(--hos-space-3);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--hos-fg);
+}
+
+.pv-nav {
+  display: flex;
+  gap: var(--hos-space-1);
+  margin-left: var(--hos-space-4);
+}
+
+.pv-navlink {
+  padding: var(--hos-space-1) var(--hos-space-2);
+  font-size: 0.86rem;
+  color: var(--hos-fg-muted);
+  text-decoration: none;
+  border-radius: var(--hos-radius-sm);
+}
+
+.pv-navlink:hover {
+  color: var(--hos-fg);
+  background: var(--hos-surface-hover);
+}
+
+.pv-navlink[aria-current="page"] {
+  color: var(--hos-fg);
+  background: var(--hos-surface-active);
+}
+
+.pv-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--hos-space-3);
+  margin-bottom: var(--hos-space-4);
+}
+
+.pv-select {
+  min-width: 10rem;
+  height: 32px;
+  padding: 0 var(--hos-space-2);
+  font: inherit;
+  font-size: 0.86rem;
+  color: var(--hos-fg);
+  background: var(--hos-surface);
+  border: 1px solid var(--hos-border);
+  border-radius: var(--hos-radius-md);
+}
+
+.pv-audit {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--hos-border);
+  border-radius: var(--hos-radius-lg);
+}
+
+.pv-audit table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.pv-audit th,
+.pv-audit td {
+  padding: var(--hos-space-2) var(--hos-space-3);
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--hos-border-subtle);
+}
+
+.pv-audit th {
+  font-weight: 600;
+  color: var(--hos-fg-muted);
+  background: var(--hos-bg-sunken);
+}
+
+.pv-audit td.pv-wrap {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pv-audit tr:last-child td {
+  border-bottom: 0;
+}
+
+.pv-result {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hos-space-1);
+}
+
+.pv-result .pv-dot[data-tone="danger"] {
+  background: var(--hos-danger);
+}
+
+.pv-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hos-space-3);
+  margin-top: var(--hos-space-4);
+  font-size: 0.84rem;
+  color: var(--hos-fg-muted);
+}
+
 [hidden] {
   display: none !important;
 }

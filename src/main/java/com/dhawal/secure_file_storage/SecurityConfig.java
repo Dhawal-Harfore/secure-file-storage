@@ -23,6 +23,7 @@ public class SecurityConfig {
                     "/login.html",
                     "/unlock.html",
                     "/vault.html",
+                    "/audit.html",
                     "/share.html",
                     "/css/**",
                     "/js/**",
