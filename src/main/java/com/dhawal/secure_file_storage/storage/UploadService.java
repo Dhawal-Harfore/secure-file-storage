@@ -341,7 +341,7 @@ public class UploadService {
         return total;
     }
 
-    private static String cleanName(String name) {
+    static String cleanName(String name) {
         String base = name == null ? "" : name;
         base = base.substring(Math.max(base.lastIndexOf('/'), base.lastIndexOf('\\')) + 1);
         base = base.replaceAll("\\p{Cntrl}", "").strip();

@@ -45,6 +45,9 @@ public class StoredFile {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     protected StoredFile() {
     }
 
@@ -102,5 +105,19 @@ public class StoredFile {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void rename(String newName) {
+        this.name = newName;
+    }
+
+    public void markDeleted(Instant at) {
+        if (deletedAt == null) {
+            deletedAt = at;
+        }
     }
 }

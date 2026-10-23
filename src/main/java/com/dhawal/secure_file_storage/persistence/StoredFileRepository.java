@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface StoredFileRepository extends JpaRepository<StoredFile, String> {
 
     List<StoredFile> findByOwnerIdOrderByCreatedAtDesc(String ownerId);
+
+    List<StoredFile> findByDeletedAtIsNullOrderByCreatedAtDesc();
 }

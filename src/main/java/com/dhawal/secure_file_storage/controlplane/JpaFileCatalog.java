@@ -48,19 +48,37 @@ public class JpaFileCatalog implements FileCatalog {
     @Override
     @Transactional(readOnly = true)
     public Optional<StoredFile> find(String fileId) {
-        return files.findById(fileId).map(file -> toControlPlane(file));
+        return files.findById(fileId).filter(file -> file.getDeletedAt() == null).map(this::toControlPlane);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<StoredFile> list() {
-        return files.findAll().stream().map(this::toControlPlane).toList();
+        return files.findByDeletedAtIsNullOrderByCreatedAtDesc().stream().map(this::toControlPlane).toList();
     }
 
     @Override
     @Transactional
     public void addRendition(String fileId, Rendition rendition) {
         renditions.save(toRow(fileId, rendition));
+    }
+
+    @Override
+    @Transactional
+    public void rename(String fileId, String name) {
+        files.findById(fileId).filter(file -> file.getDeletedAt() == null).ifPresent(file -> {
+            file.rename(name);
+            files.saveAndFlush(file);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void markDeleted(String fileId) {
+        files.findById(fileId).ifPresent(file -> {
+            file.markDeleted(java.time.Instant.now());
+            files.saveAndFlush(file);
+        });
     }
 
     private static FileRendition toRow(String fileId, Rendition rendition) {

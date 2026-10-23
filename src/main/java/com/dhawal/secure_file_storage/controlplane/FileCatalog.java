@@ -14,4 +14,8 @@ public interface FileCatalog {
     }
 
     void addRendition(String fileId, Rendition rendition);
+
+    void rename(String fileId, String name);
+
+    void markDeleted(String fileId);
 }

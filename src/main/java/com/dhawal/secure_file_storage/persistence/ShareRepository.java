@@ -16,6 +16,10 @@ public interface ShareRepository extends JpaRepository<Share, String> {
     List<Share> findByFileIdOrderByCreatedAtDesc(String fileId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Share s set s.revokedAt = :now where s.file.id = :fileId and s.revokedAt is null")
+    int revokeAllForFile(@Param("fileId") String fileId, @Param("now") Instant now);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             update Share s set s.viewsUsed = s.viewsUsed + 1
             where s.id = :id and s.revokedAt is null

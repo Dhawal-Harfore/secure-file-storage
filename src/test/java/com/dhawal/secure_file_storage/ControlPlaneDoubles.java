@@ -149,6 +149,18 @@ public class ControlPlaneDoubles {
         }
 
         @Override
+        public void rename(String fileId, String name) {
+            files.computeIfPresent(fileId, (id, file) -> new StoredFile(file.id(), name, file.mime(), file.size(),
+                    file.kind(), file.ownerId(), file.ownerEmail(), file.createdAt(), java.time.Instant.now(),
+                    file.renditions()));
+        }
+
+        @Override
+        public void markDeleted(String fileId) {
+            files.remove(fileId);
+        }
+
+        @Override
         public void addRendition(String fileId, Rendition rendition) {
             files.computeIfPresent(fileId, (id, file) -> {
                 Map<QualityTier, Rendition> renditions = new HashMap<>(file.renditions());

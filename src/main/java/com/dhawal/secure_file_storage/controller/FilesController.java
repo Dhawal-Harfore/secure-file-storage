@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,6 +32,7 @@ import com.dhawal.secure_file_storage.dto.FileMeta;
 import com.dhawal.secure_file_storage.dto.SessionUser;
 import com.dhawal.secure_file_storage.storage.ApiException;
 import com.dhawal.secure_file_storage.storage.ContentService;
+import com.dhawal.secure_file_storage.storage.FileManagementService;
 import com.dhawal.secure_file_storage.storage.ControlPlane;
 import com.dhawal.secure_file_storage.storage.RequestInfo;
 import com.dhawal.secure_file_storage.storage.UploadService;
@@ -54,13 +56,38 @@ public class FilesController {
     private final ContentService content;
     private final ControlPlane controlPlane;
     private final AuthenticatedUserService authenticatedUsers;
+    private final FileManagementService management;
 
     public FilesController(UploadService uploads, ContentService content, ControlPlane controlPlane,
-            AuthenticatedUserService authenticatedUsers) {
+            AuthenticatedUserService authenticatedUsers, FileManagementService management) {
         this.uploads = uploads;
         this.content = content;
         this.controlPlane = controlPlane;
         this.authenticatedUsers = authenticatedUsers;
+        this.management = management;
+    }
+
+    public record RenameRequest(String name) {
+    }
+
+    @PatchMapping("/{fileId:f_[0-9a-f]+}")
+    public FileMeta rename(
+            @PathVariable String fileId,
+            @RequestBody RenameRequest body,
+            HttpServletRequest request,
+            Authentication authentication) {
+        SessionUser subject = user(authentication);
+        StoredFile file = management.rename(subject, fileId, body.name(), RequestInfo.of(request));
+        return FileMeta.of(file, controlPlane.permits().evaluate(file.id(), subject.id()));
+    }
+
+    @DeleteMapping("/{fileId:f_[0-9a-f]+}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String fileId,
+            HttpServletRequest request,
+            Authentication authentication) throws IOException {
+        management.delete(user(authentication), fileId, RequestInfo.of(request));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -80,7 +107,11 @@ public class FilesController {
         SessionUser subject = user(authentication);
         StoredFile file = controlPlane.catalog().find(fileId)
                 .orElseThrow(() -> ApiException.notFound("That file doesn't exist."));
-        return visible(file, subject, RequestInfo.of(request));
+        FileMeta meta = visible(file, subject, RequestInfo.of(request));
+        if (meta == null) {
+            throw ApiException.notFound("That file doesn't exist.");
+        }
+        return meta;
     }
 
     @GetMapping("/{fileId:f_[0-9a-f]+}/permit")
