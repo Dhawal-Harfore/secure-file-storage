@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import jakarta.servlet.http.Cookie;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,6 +32,9 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 class AuthControllerTests {
 
     private static final AtomicInteger clients = new AtomicInteger(1);
+
+    @Autowired
+    private JdbcTemplate jdbc;
 
     @Autowired
     private MockMvc mvc;
@@ -77,12 +82,21 @@ class AuthControllerTests {
                 .contains("\"email\":\"asha@example.com\"")
                 .containsPattern("\"id\":\"u_[0-9a-f]{8}\"");
 
-        MockHttpSession session = (MockHttpSession) verified.getRequest().getSession(false);
+        Cookie session = verified.getResponse().getCookie("vault_session");
         assertThat(session).isNotNull();
+        assertThat(session.isHttpOnly()).isTrue();
+        assertThat(session.getSecure()).isTrue();
 
-        mvc.perform(get("/api/auth/session").session(session))
+        mvc.perform(get("/api/auth/session").cookie(session))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.email").value("asha@example.com"));
+
+        assertThat(verified.getResponse().getHeaders("Set-Cookie"))
+                .anySatisfy(h -> assertThat(h).startsWith("vault_session=").contains("SameSite=Lax"));
+        assertThat(jdbc.queryForObject("select max(MAX_INACTIVE_INTERVAL) from SPRING_SESSION", Integer.class))
+                .isEqualTo(12 * 3600);
+        assertThat(jdbc.queryForObject("select count(*) from SPRING_SESSION where PRINCIPAL_NAME = ?",
+                Integer.class, "asha@example.com")).isPositive();
     }
 
     @Test
@@ -169,14 +183,13 @@ class AuthControllerTests {
     @Test
     void logoutEndsSession() throws Exception {
         String token = requestLink("leave@example.com", newClient());
-        MockHttpSession session = (MockHttpSession) verifyToken(token).getRequest().getSession(false);
+        Cookie session = verifyToken(token).getResponse().getCookie("vault_session");
 
-        mvc.perform(post("/api/auth/logout").session(session))
+        mvc.perform(get("/api/auth/session").cookie(session)).andExpect(status().isOk());
+        mvc.perform(post("/api/auth/logout").cookie(session))
                 .andExpect(status().isNoContent());
 
-        assertThat(session.isInvalid()).isTrue();
-
-        mvc.perform(get("/api/auth/session"))
+        mvc.perform(get("/api/auth/session").cookie(session))
                 .andExpect(status().isUnauthorized());
     }
 
