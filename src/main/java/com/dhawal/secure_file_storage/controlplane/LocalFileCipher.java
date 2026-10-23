@@ -33,11 +33,45 @@ public class LocalFileCipher implements FileCipher {
     private static final int NONCE_SIZE = 12;
     private static final int TAG_SIZE = 16;
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final byte[] WRAPPED_MAGIC = "VKW1".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+    private static final int WRAPPED_LENGTH = WRAPPED_MAGIC.length + NONCE_SIZE + 32 + TAG_SIZE;
 
     private final Path keyRoot;
+    private final SecretKey masterKey;
 
-    public LocalFileCipher(@Value("${vault.storage.root}") Path storageRoot) {
+    public LocalFileCipher(
+            @Value("${vault.storage.root}") Path storageRoot,
+            @Value("${vault.storage.master-key:}") String masterKey) throws IOException {
         this.keyRoot = storageRoot.toAbsolutePath().normalize().resolve(".keys");
+        this.masterKey = parseMasterKey(masterKey);
+        wrapLegacyKeys();
+    }
+
+    private static SecretKey parseMasterKey(String encoded) {
+        byte[] bytes;
+        try {
+            bytes = java.util.Base64.getDecoder().decode(encoded == null ? "" : encoded.strip());
+        } catch (IllegalArgumentException e) {
+            bytes = new byte[0];
+        }
+        if (bytes.length != 32) {
+            throw new IllegalStateException(
+                    "vault.storage.master-key must be 32 random bytes in base64 (set VAULT_MASTER_KEY)");
+        }
+        return new SecretKeySpec(bytes, "AES");
+    }
+
+    private void wrapLegacyKeys() throws IOException {
+        if (!Files.isDirectory(keyRoot)) {
+            return;
+        }
+        try (var keys = Files.newDirectoryStream(keyRoot, "*.key")) {
+            for (Path path : keys) {
+                if (Files.size(path) == 32) {
+                    readKey(path);
+                }
+            }
+        }
     }
 
     @Override
@@ -77,7 +111,7 @@ public class LocalFileCipher implements FileCipher {
             }
             Path temporary = Files.createTempFile(keyRoot, "key-", ".tmp");
             try {
-                Files.write(temporary, generated.getEncoded());
+                Files.write(temporary, wrap(path, generated.getEncoded()));
                 try {
                     Files.move(temporary, path);
                 } catch (java.nio.file.FileAlreadyExistsException e) {
@@ -95,11 +129,47 @@ public class LocalFileCipher implements FileCipher {
     }
 
     private SecretKey readKey(Path path) throws IOException {
-        byte[] encoded = Files.readAllBytes(path);
-        if (encoded.length != 32) {
+        byte[] stored = Files.readAllBytes(path);
+        if (stored.length == 32) {
+            Path temporary = Files.createTempFile(keyRoot, "key-", ".tmp");
+            try {
+                Files.write(temporary, wrap(path, stored));
+                Files.move(temporary, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                        java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+            } finally {
+                Files.deleteIfExists(temporary);
+            }
+            return new SecretKeySpec(stored, "AES");
+        }
+        if (stored.length != WRAPPED_LENGTH
+                || !Arrays.equals(Arrays.copyOf(stored, WRAPPED_MAGIC.length), WRAPPED_MAGIC)) {
             throw new IOException("Invalid encryption key");
         }
-        return new SecretKeySpec(encoded, "AES");
+        byte[] nonce = Arrays.copyOfRange(stored, WRAPPED_MAGIC.length, WRAPPED_MAGIC.length + NONCE_SIZE);
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, masterKey, new GCMParameterSpec(TAG_SIZE * 8, nonce));
+            cipher.updateAAD(path.getFileName().toString().getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+            return new SecretKeySpec(
+                    cipher.doFinal(stored, WRAPPED_MAGIC.length + NONCE_SIZE, 32 + TAG_SIZE), "AES");
+        } catch (GeneralSecurityException e) {
+            throw new IOException("Could not unwrap the file key; is VAULT_MASTER_KEY the right one?", e);
+        }
+    }
+
+    private byte[] wrap(Path path, byte[] rawKey) throws IOException {
+        byte[] nonce = nonce();
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, masterKey, new GCMParameterSpec(TAG_SIZE * 8, nonce));
+            cipher.updateAAD(path.getFileName().toString().getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+            byte[] sealed = cipher.doFinal(rawKey);
+            ByteBuffer out = ByteBuffer.allocate(WRAPPED_LENGTH);
+            out.put(WRAPPED_MAGIC).put(nonce).put(sealed);
+            return out.array();
+        } catch (GeneralSecurityException e) {
+            throw new IOException("Could not wrap the file key", e);
+        }
     }
 
     private Path keyPath(String keyHandle) {
